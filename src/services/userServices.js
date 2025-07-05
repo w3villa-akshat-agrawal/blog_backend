@@ -1,0 +1,194 @@
+const check = require("../validation/index.js")
+const { hashedPassword, comparingPassword } = require("../../utils/bcyrptFunctions.js");
+const checkExistence = require("../../utils/existence");
+const { User } = require("../../src/models");
+const ApiError = require("../../utils/globalError.js");
+const { userToken, tokenCheck } = require("../../utils/tokenHouse.js");
+const sendEmail = require("../../utils/mail.js");
+const jwt = require('jsonwebtoken');
+
+
+const signUp = async (data) => {
+  const { error, value } = check.signUpSchema.validate(data);
+  if (error) {
+    throw new ApiError(error.details[0].message, 400);
+  }
+
+  try {
+    const { username, email, password, phone, firstName, lastName, isActive, status } = value;
+
+    const existingUser = await checkExistence(User, {
+      username,
+    });
+
+    if (existingUser) {
+      throw new ApiError("User already exists with this email or username", 409);
+    }
+
+    let hash = null;
+    if (password) {
+      hash = await hashedPassword(password);
+    }
+
+    const user = await User.create({
+      username,
+      email,
+      password: hash, // will be null if from Google
+      phone,
+      firstName,
+      lastName,
+      isActive,
+      status,
+    });
+    const token = userToken({ email: user.email, id: user.id }, process.env.JWT_EMAIL_SECRET, process.env.JWT_EMAIL_EXPIRES_IN);
+
+    const verificationLink = `http://localhost:3008/api/v1/auth/verifymail?token=${token}`;
+
+    try {
+      const mail = await sendEmail(
+        email,
+        "Verify Your Email",
+        `<h1>Verify Email</h1>
+   <p>Please click the link below to verify your email:</p>
+   <a href="${verificationLink}">${verificationLink}</a>`
+      );
+
+      console.log("mail sent")
+
+    } catch (error) {
+      throw (new ApiError("mail error"))
+    }
+
+
+    return user;
+  } catch (err) {
+    throw err;
+  }
+};
+
+
+const login = async (data) => {
+  const { error, value } = check.loginSchema.validate(data);
+  if (error) {
+    throw new ApiError(error.details[0].message, 400);
+  }
+
+  const { email, password } = value;
+  const existingUser = await checkExistence(User, { email });
+
+  if (!existingUser) {
+    throw new ApiError("User not found. Please sign up.", 404);
+  }
+
+  const isMatch = await comparingPassword(password, existingUser.password);
+  if (!isMatch) {
+    throw new ApiError("Credentials do not match", 400);
+  }
+
+  if (existingUser.token) {
+    try {
+      jwt.verify(existingUser.token, process.env.JWT_REFRESH);
+      // Token is valid → user is already logged in
+      throw new ApiError("User already logged in", 400);
+    } catch (err) {
+      // Token is expired or invalid → continue login flow
+      console.log("Old refresh token expired, proceeding with login...");
+    }
+  }
+
+
+
+  const accessToken = userToken(
+    { id: existingUser.id, email: existingUser.email },
+    process.env.JWT_ACCESS,
+    process.env.JWT_ACCESS_EXPIRES_IN
+  );
+
+  const refreshToken = userToken(
+    { id: existingUser.id, email: existingUser.email },
+    process.env.JWT_REFRESH,
+    process.env.JWT_REFRESH_EXPIRES_IN
+  );
+
+
+  await User.update(
+    { token: refreshToken },
+    { where: { id: existingUser.id } }
+  );
+
+  return { accessToken, refreshToken, user: existingUser };
+};
+module.exports = { login };
+
+const mailTokenVerification = async (token) => {
+  try {
+    const tokenSignCheck = await tokenCheck(token, process.env.JWT_EMAIL_SECRET);
+    console.log(tokenSignCheck)
+    const existingUser = await checkExistence(User, {
+      id: tokenSignCheck.id
+    });
+
+    if (!existingUser) {
+      throw new ApiError("User not found for this email", 404);
+    }
+
+    await User.update(
+      { isEmailVerified: true },
+      { where: { id: existingUser.id } }
+    );
+
+    return true;
+  } catch (error) {
+    throw new ApiError("Error verifying email token", 400);
+  }
+};
+
+const accessTokenRefresh = async (tokenRefreSH) => {
+  try {
+    const refreshToken = tokenRefreSH;
+    console.log("joo")
+    console.log(tokenRefreSH)
+
+    if (!refreshToken) {
+      throw new ApiError("Session expired. Please log in again.", 403);
+    }
+
+    let decoded;
+    try {
+      console.log(process.env.JWT_REFRESH)
+      console.log("1")
+      decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH);
+      console.log("2")
+      console.log(decoded.id)
+      if(decoded){
+        console.log("******************")
+        console.log("trueeeeeee")
+      }
+      const user = await User.findByPk(decoded.id);
+      
+      console.log(user)
+
+    if (!user || user.token !== refreshToken) {
+      throw new ApiError("Token mismatch or user not found", 403);
+    }
+
+    const newAccessToken = userToken(
+      { id: user.id, email: user.email },
+      process.env.JWT_ACCESS,
+      process.env.JWT_ACCESS_EXPIRES_IN
+    );
+    
+    return newAccessToken;
+    } catch (err) {
+        console.error("❌ jwt.verify error:", err.message);
+      throw new ApiError("Invalid or expired refresh token", 403);
+    }
+
+    
+  } catch (err) {
+    console.log("accessTokenRefresh error:", err);
+    throw err;
+  }
+};
+
+module.exports = { signUp, login, mailTokenVerification, accessTokenRefresh };
