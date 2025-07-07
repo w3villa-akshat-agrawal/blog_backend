@@ -1,7 +1,11 @@
 const checkExistence = require("../../utils/existence");
 const ApiError = require("../../utils/globalError");
-const { Blog, sequelize ,User} = require("../models");
+const { Blog, sequelize ,User,Comment} = require("../models");
 const { QueryTypes } = require("sequelize");
+
+
+
+
 const blogCreateService = async (userId, data) => {
   const { title, body, type } = data;
 
@@ -23,6 +27,8 @@ const blogCreateService = async (userId, data) => {
     throw new ApiError("DB error while creating blog", 500);
   }
 };
+
+
 
 
 const blogDelete = async (userId, blogId) => {
@@ -48,6 +54,9 @@ const blogDelete = async (userId, blogId) => {
     throw error;
   }
 };
+
+
+
 
 const blogUpdate = async (userId,blogId,data)=>{
    try {
@@ -75,6 +84,10 @@ const blogUpdate = async (userId,blogId,data)=>{
     throw error;
   }
 }
+
+
+
+
 // const getAllBlogService = async () => {
 //   try {
 //     const [blogs] = await sequelize.query(
@@ -98,6 +111,13 @@ const getAllBlogService = async ()=>{
           model:User,
           as:'author',
           attributes:['id','username']
+        },{
+          model:Comment,
+          as:"comments",
+          attributes:["comment"],
+          separate:true,
+          limit:5,
+          orderBy: [['createdAt', 'DESC']]  
         }
 
       ]
@@ -138,32 +158,47 @@ const getAllBlogService = async ()=>{
 
 //   return userDetail;
 // };
-const desiredUserFetch = async (data) =>{
+const desiredUserFetch = async (data) => {
   const id = data;
-  console.log("*******************")
-  console.log(id)
-   try {
+
+  try {
     const userDetail = await User.findOne({
       where: { id },
       attributes: ['username', 'email', 'phone'],
       include: [
         {
           model: Blog,
-          as: 'blogs', // 👈 this alias must match the one in association
+          as: 'blogs',
           attributes: ['title', 'body'],
+          include: [
+            {
+              model: Comment,
+              as: 'comments',
+              attributes: ['comment'],
+              include: [
+                {
+                  model: User,
+                  as: 'commentAuthor',
+                  attributes: ['username']
+                }
+              ]
+            }
+          ]
         }
       ]
     });
 
     if (!userDetail) {
-      throw (new ApiError("user not found ",501))
+      throw new ApiError("user not found", 501);
     }
 
-    return (userDetail)
+    return userDetail;
+
   } catch (error) {
-    console.log(error)
-    throw (new ApiError("error"));
+    console.log(error);
+    throw new ApiError("error");
   }
-}
+};
+
 
 module.exports = { blogCreateService, getAllBlogService,blogDelete,blogUpdate,desiredUserFetch };

@@ -4,6 +4,7 @@ const passport = require('passport');
 const session = require('express-session');
 const userRoutes = require('./src/routes/userRoutes.js');
 const userBlog = require("./src/routes/blogRoutes.js")
+const userBlogComment = require("./src/routes/comment.js")
 const googleLogin = require ("./src/routes/auth.js")
 require("./config/mySql_connection.js");
 require('dotenv').config();
@@ -39,6 +40,7 @@ app.use("/api/v1",googleLogin);
 // Routes & Error handler
 app.use("/api/v1", userRoutes);
 app.use("/api/v1/blog",userBlog)
+app.use("/api/v1/blogComment",userBlogComment)
 app.use(errorHandle);
 
 // Start server
