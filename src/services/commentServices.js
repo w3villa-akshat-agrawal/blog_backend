@@ -21,6 +21,9 @@ const commentCreate = async (blogId,userId,data)=>{
         throw (new ApiError("query problem"))
    }
 }
+
+
+
 // all comments with pagination 
 const fetchComments = async (blogId,page,limit)=>{
     pageval = page || 1
@@ -51,4 +54,44 @@ const fetchComments = async (blogId,page,limit)=>{
     }
 }
 
-module.exports = {commentCreate,fetchComments}
+
+
+const commentDelete = async (commentId, userId) => {
+  try {
+    const comment = await Comment.findOne({
+      where: { id: commentId },
+      attributes: ['id', 'commentUserId', 'blogId'],
+      include: [
+        {
+          model: Blog,
+          as: "blog",
+          attributes: ["id", "userId"]
+        }
+      ]
+    });
+
+    if (!comment) {
+      throw new ApiError("Comment not found", 404);
+    }
+
+    const blogUserId = comment.blog?.userId;
+    console.log(blogUserId)
+    const commentOwnerId = comment.commentUserId;
+    console.log(commentOwnerId)
+
+    if (userId === commentOwnerId || userId === blogUserId) {
+      await Comment.destroy({ where: { id: commentId } });
+      return { message: "Comment deleted" };
+    }
+    else{
+         throw (new ApiError("Unauthorized to delete this comment", 403));
+    }
+  } catch (error) {
+    console.log(error);
+    throw new ApiError(error);
+  }
+};
+
+
+
+module.exports = {commentCreate,fetchComments,commentDelete}

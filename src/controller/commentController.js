@@ -1,35 +1,57 @@
 const response = require("../../utils/response")
-const { commentCreate,fetchComments } = require("../services/commentServices")
+const { commentCreate, fetchComments, commentDelete } = require("../services/commentServices")
 
 
 
-const createComment = async(req,res,next)=>{
-   try {
-     const userId = req.user.id
-    const blogId =  req.params.id
-    const data = req.body
-    const result = await (commentCreate(blogId,userId,data))
-    if(result){
-        return res.send("comment done",result,200,true)
+const createComment = async (req, res, next) => {
+    try {
+        const userId = req.user.id
+        const blogId = req.params.id
+        const data = req.body
+        const result = await (commentCreate(blogId, userId, data))
+        if (result) {
+            return res.send("comment done", result, 200, true)
+        }
+    } catch (error) {
+        console.log(error)
+        next(error)
     }
-   } catch (error) {
-    console.log(error)
-    next(error)
-   }
 
 }
-const getComments = async(req,res,next)=>{
-   try {
-     const blogId = req.params.id
-     const {page , limit} = req.query
-    const result = await fetchComments(blogId,page,limit)
-    if (result){
-        return res.send(response("comments fetched success",result,200,true))
+
+
+const getComments = async (req, res, next) => {
+    try {
+        const blogId = req.params.id
+        const { page, limit } = req.query
+        const result = await fetchComments(blogId, page, limit)
+        if (result) {
+            return res.send(response("comments fetched success", result, 200, true))
+        }
+
+    } catch (error) {
+        next(error)
     }
-    
-   } catch (error) {
-    next (error)
-   }
 
 }
-module.exports = {createComment,getComments}
+
+
+const deleteComment = async (req, res, next) => {
+    try {
+        comentId = req.params.id
+        userId = req.user.id
+        const result = await commentDelete(comentId, userId)
+        if (result) {
+            return res.send("comment deleted", result, 200, true)
+        }
+        else {
+            console.log("service problem")
+        }
+    } catch (error) {
+        next(error)
+    }
+}
+
+
+
+module.exports = { createComment, getComments, deleteComment }

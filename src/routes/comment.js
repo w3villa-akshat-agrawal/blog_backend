@@ -1,6 +1,6 @@
 const express = require("express");
 const verifyAccessToken = require("../middleware/tokenVerification");
-const { createComment,getComments } = require("../controller/commentController");
+const { createComment,getComments,deleteComment } = require("../controller/commentController");
 const router = express.Router();
 
 router.post("/comment/:id",verifyAccessToken,createComment)
@@ -8,7 +8,7 @@ router.post("/comment/:id",verifyAccessToken,createComment)
 
 // pagination here
 router.get("/allComments/:id",verifyAccessToken,getComments)
-
+router.delete("/commentdelete/:id",verifyAccessToken,deleteComment)
 
 
 // limit or offset===mysql
