@@ -1,3 +1,4 @@
+const redis = require("../../config/redis_connection");
 const checkExistence = require("../../utils/existence");
 const ApiError = require("../../utils/globalError");
 const { Blog, sequelize ,User,Comment} = require("../models");
@@ -21,7 +22,10 @@ const blogCreateService = async (userId, data) => {
       type,
       userId,
     });
-
+    const exists = await redis.exists("allBlog")
+    if(exists){
+      await redis.del("allBlog")    
+    }
     return newBlog.id;
   } catch (error) {
     throw new ApiError("DB error while creating blog", 500);
@@ -101,33 +105,46 @@ const blogUpdate = async (userId,blogId,data)=>{
 // };
 
 
-const getAllBlogService = async ()=>{
+const getAllBlogService = async () => {
+  const cacheKey = "allBlog";
   try {
-    const alBlog = await Blog.findAll({
-      where:{type:'private'},
-      attributes:['id','title','body'],
-      include:[
-        {
-          model:User,
-          as:'author',
-          attributes:['id','username']
-        },{
-          model:Comment,
-          as:"comments",
-          attributes:["comment"],
-          separate:true,
-          limit:5,
-          orderBy: [['createdAt', 'DESC']]  
-        }
+    const cachedBlog = await redis.get(cacheKey);
 
+    if (cachedBlog) {
+      console.log("Coming from Redis");
+      return JSON.parse(cachedBlog); // convert back to object
+    }
+
+    const allBlog = await Blog.findAll({
+      where: { type: 'public' },
+      attributes: ['id', 'title', 'body'],
+      order:[["createdAt","DESC"]],
+      include: [
+        {
+          model: User,
+          as: 'author',
+          attributes: ['id', 'username']
+        },
+        {
+          model: Comment,
+          as: "comments",
+          attributes: ["comment"],
+          separate: true,
+          limit: 5,
+          order: [['createdAt', 'DESC']]
+        }
       ]
-    })
-    return (alBlog)
+    });
+
+    await redis.set(cacheKey, JSON.stringify(allBlog), 'EX', 120); // expires in 2 minutes
+    console.log("Coming from DB");
+    return allBlog;
   } catch (error) {
-    console.log(error)
-    throw(new ApiError("queryError"))
+    console.log(error);
+    throw new ApiError("Query error");
   }
-}
+};
+
 
 
 
