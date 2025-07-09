@@ -2,6 +2,7 @@ const express = require('express');
 const passport = require('passport');
 const session = require('express-session');
 const userRoutes = require('./src/routes/userRoutes.js');
+const social = require ('./src/routes/userSocial.js')
 const userBlog = require("./src/routes/blogRoutes.js");
 const userBlogComment = require("./src/routes/comment.js");
 const googleLogin = require("./src/routes/auth.js");
@@ -28,6 +29,7 @@ app.use("/api/v1", googleLogin);
 app.use("/api/v1", userRoutes);
 app.use("/api/v1/blog", userBlog);
 app.use("/api/v1/blogComment", userBlogComment);
+app.use("/app/v1/social",social)
 app.use(errorHandle);
 
 const PORT = process.env.PORT || 3000;
