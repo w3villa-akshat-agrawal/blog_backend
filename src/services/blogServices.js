@@ -105,6 +105,10 @@ const blogUpdate = async (userId,blogId,data)=>{
 // };
 
 
+
+// jHm4lnXzwbRvDzxx mongo db
+// AQSwzaNo7JZLvKNd    blog_App
+
 const getAllBlogService = async () => {
   const cacheKey = "allBlog";
   try {
