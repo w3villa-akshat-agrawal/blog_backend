@@ -1,55 +1,88 @@
 const express = require('express');
 const passport = require('passport');
 const session = require('express-session');
-const userRoutes = require('./src/routes/userRoutes.js');
-const social = require ('./src/routes/userSocial.js')
-const userBlog = require("./src/routes/blogRoutes.js");
-const userBlogComment = require("./src/routes/comment.js");
-const googleLogin = require("./src/routes/auth.js");
-const connectDB = require('./config/mongo_connection.js');
 const cookieParser = require('cookie-parser');
-const errorHandle = require("./src/middleware/errorHandling.js");
-require('dotenv').config();
+const dotenv = require('dotenv');
+const http = require('http');
+const { Server } = require('socket.io');
+
+const userRoutes = require('./src/routes/userRoutes.js');
+const social = require('./src/routes/userSocial.js');
+const userBlog = require('./src/routes/blogRoutes.js');
+const userBlogComment = require('./src/routes/comment.js');
+const googleLogin = require('./src/routes/auth.js');
+const connectDB = require('./config/mongo_connection.js');
+const errorHandle = require('./src/middleware/errorHandling.js');
+const db = require('./src/models');
+const chatHandler = require('./src/socket/chat.js');
+
+// Load environment variables
+dotenv.config();
 require('./utils/passportconfig.js');
 require('./config/mySql_connection.js');
-const db = require('./src/models');
 
+// Create Express app
 const app = express();
+
+// Create HTTP server (required for socket.io)
+const server = http.createServer(app);
+
+// Set up Socket.IO server
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
+
+// Import and apply chat socket logic
+io.on('connection', (socket) => {
+  console.log('New user connected:', socket.id);
+  chatHandler(io,socket) // pass io and socket instance
+});
+
+// Middleware
 app.use(express.json());
 app.use(cookieParser());
-app.use(session({ secret: 'keyboard cat', resave: false, saveUninitialized: false }));
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: false
+}));
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Routes
 app.get("/", (req, res) => {
   res.send("Hello from blog app");
 });
-
 app.use("/api/v1", googleLogin);
 app.use("/api/v1", userRoutes);
 app.use("/api/v1/blog", userBlog);
 app.use("/api/v1/blogComment", userBlogComment);
-app.use("/app/v1/social",social)
+app.use("/app/v1/social", social);
 app.use(errorHandle);
 
+// Start server only after DBs are connected
 const PORT = process.env.PORT || 3000;
-
-// ✅ Use async function to wait for all DBs before starting
 const startServer = async () => {
   try {
     await db.sequelize.authenticate();
-    console.log('✅ Sequelize CLI DB connection successful');
+    console.log('Sequelize DB connection successful');
 
-    await connectDB(); // MongoDB connect
-    console.log('✅ MongoDB connection successful');
+    await connectDB();
+    console.log('MongoDB connection successful');
 
-    app.listen(PORT, () => {
-      console.log(`🚀 Server is running on port ${PORT}`);
+    server.listen(PORT, () => {
+      console.log(`Server + Socket.IO running on port ${PORT}`);
     });
   } catch (err) {
-    console.error('❌ Failed to start server:', err.message);
-    process.exit(1); // Force exit if DB fails
+    console.error('Failed to start server:', err.message);
+    process.exit(1);
   }
 };
 
 startServer();
+
+// Optional: export io if needed elsewhere
+module.exports = { io };

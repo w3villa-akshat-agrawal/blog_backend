@@ -6,12 +6,15 @@ router.get('/auth/google',
 );
 
 router.get(
-  '/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/api/v1/auth/google/failure' }),
+  "/auth/google/callback",
+  passport.authenticate("google", {
+    failureRedirect: "/api/v1/auth/google/failure",
+    session: false,
+  }),
   (req, res) => {
-    const { accessToken, refreshToken, user, alreadyLoggedIn, accessRefreshed, regenerated } = req.user;
+    const { userLoginToken, newToken, user, alreadyLoggedIn, regenerated } = req.user;
 
-    // Already logged in (valid token present)
+    // ✅ Case: Already logged in (valid access token)
     if (alreadyLoggedIn) {
       return res.status(200).json({
         message: "User already logged in",
@@ -19,36 +22,27 @@ router.get(
       });
     }
 
-    // If new tokens were created or refreshed
-    if (accessToken) {
-      res.cookie('accessToken', accessToken, {
+    // ✅ Set cookie if new token was generated or refreshed
+    if (userLoginToken && (newToken || regenerated)) {
+      res.cookie("accessToken", userLoginToken, {
         httpOnly: true,
-        secure: false, // ✅ Set to true in production
-        sameSite: 'lax',
-        maxAge: 15 * 60 * 1000, // 15 minutes
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+           maxAge: 3 * 24 * 60 * 60 * 1000,
       });
-    }
-
-    if (refreshToken) {
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: false,
-        sameSite: 'lax',
-        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-      });
+      
     }
 
     return res.status(200).json({
       message: regenerated
-        ? "New tokens generated"
-        : accessRefreshed
-        ? "Access token refreshed"
+        ? "New token generated"
+        : newToken
+        ? "login successful"
         : "Google login successful",
       user,
     });
   }
 );
-
 
 
 

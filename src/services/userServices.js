@@ -67,57 +67,40 @@ const signUp = async (data) => {
 };
 
 
-const login = async (data) => {
+const login = async (data, token) => {
   const { error, value } = check.loginSchema.validate(data);
-  if (error) {
-    throw new ApiError(error.details[0].message, 400);
-  }
+  if (error) throw new ApiError(error.details[0].message, 400);
 
   const { email, password } = value;
   const existingUser = await checkExistence(User, { email });
-
-  if (!existingUser) {
-    throw new ApiError("User not found. Please sign up.", 404);
-  }
+  if (!existingUser) throw new ApiError("User not found. Please sign up.", 404);
 
   const isMatch = await comparingPassword(password, existingUser.password);
-  if (!isMatch) {
-    throw new ApiError("Credentials do not match", 400);
-  }
+  if (!isMatch) throw new ApiError("Credentials do not match", 400);
 
-  if (existingUser.token) {
+  if (token) {
     try {
-      jwt.verify(existingUser.token, process.env.JWT_REFRESH);
-      // Token is valid → user is already logged in
+      jwt.verify(token, process.env.JWT_ACCESS);
       throw new ApiError("User already logged in", 400);
     } catch (err) {
-      // Token is expired or invalid → continue login flow
-      console.log("Old refresh token expired, proceeding with login...");
+      console.log("Old token expired or invalid, proceeding with login...");
     }
   }
 
-
-
-  const accessToken = userToken(
+  const userLoginToken = userToken(
     { id: existingUser.id, email: existingUser.email },
     process.env.JWT_ACCESS,
     process.env.JWT_ACCESS_EXPIRES_IN
   );
 
-  const refreshToken = userToken(
-    { id: existingUser.id, email: existingUser.email },
-    process.env.JWT_REFRESH,
-    process.env.JWT_REFRESH_EXPIRES_IN
-  );
-
-
   await User.update(
-    { token: refreshToken },
+    { token: userLoginToken },
     { where: { id: existingUser.id } }
   );
 
-  return { accessToken, refreshToken, user: existingUser };
+  return { userLoginToken, user: existingUser };
 };
+
 module.exports = { login };
 
 const mailTokenVerification = async (token) => {
@@ -143,52 +126,52 @@ const mailTokenVerification = async (token) => {
   }
 };
 
-const accessTokenRefresh = async (tokenRefreSH) => {
-  try {
-    const refreshToken = tokenRefreSH;
-    console.log("joo")
-    console.log(tokenRefreSH)
+// const accessTokenRefresh = async (tokenRefreSH) => {
+//   try {
+//     const refreshToken = tokenRefreSH;
+//     console.log("joo")
+//     console.log(tokenRefreSH)
 
-    if (!refreshToken) {
-      throw new ApiError("Session expired. Please log in again.", 403);
-    }
+//     if (!refreshToken) {
+//       throw new ApiError("Session expired. Please log in again.", 403);
+//     }
 
-    let decoded;
-    try {
-      console.log(process.env.JWT_REFRESH)
-      console.log("1")
-      decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH);
-      console.log("2")
-      console.log(decoded.id)
-      if(decoded){
-        console.log("******************")
-        console.log("trueeeeeee")
-      }
-      const user = await User.findByPk(decoded.id);
+//     let decoded;
+//     try {
+//       console.log(process.env.JWT_REFRESH)
+//       console.log("1")
+//       decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH);
+//       console.log("2")
+//       console.log(decoded.id)
+//       if(decoded){
+//         console.log("******************")
+//         console.log("trueeeeeee")
+//       }
+//       const user = await User.findByPk(decoded.id);
       
-      console.log(user)
+//       console.log(user)
 
-    if (!user || user.token !== refreshToken) {
-      throw new ApiError("Token mismatch or user not found", 403);
-    }
+//     if (!user || user.token !== refreshToken) {
+//       throw new ApiError("Token mismatch or user not found", 403);
+//     }
 
-    const newAccessToken = userToken(
-      { id: user.id, email: user.email },
-      process.env.JWT_ACCESS,
-      process.env.JWT_ACCESS_EXPIRES_IN
-    );
+//     const newAccessToken = userToken(
+//       { id: user.id, email: user.email },
+//       process.env.JWT_ACCESS,
+//       process.env.JWT_ACCESS_EXPIRES_IN
+//     );
     
-    return newAccessToken;
-    } catch (err) {
-        console.error("❌ jwt.verify error:", err.message);
-      throw new ApiError("Invalid or expired refresh token", 403);
-    }
+//     return newAccessToken;
+//     } catch (err) {
+//         console.error("❌ jwt.verify error:", err.message);
+//       throw new ApiError("Invalid or expired refresh token", 403);
+//     }
 
     
-  } catch (err) {
-    console.log("accessTokenRefresh error:", err);
-    throw err;
-  }
-};
+//   } catch (err) {
+//     console.log("accessTokenRefresh error:", err);
+//     throw err;
+//   }
+// };
 
-module.exports = { signUp, login, mailTokenVerification, accessTokenRefresh };
+module.exports = { signUp, login, mailTokenVerification };

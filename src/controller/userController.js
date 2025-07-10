@@ -15,25 +15,24 @@ const userSignUp = async (req, res,next) => {
 };
 const userLogin = async (req, res, next) => {
   try {
-    const { accessToken, refreshToken, user } = await services.login(req.body);
-    res.cookie('accessToken', accessToken, {
+    const tokenFromCookie = req.cookies?.accessToken;
+
+    const { userLoginToken, user } = await services.login(req.body, tokenFromCookie);
+
+    res.cookie('accessToken', userLoginToken, {
       httpOnly: true,
-      secure: false, // Set to true in production (with HTTPS)
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 15 * 60 * 1000 // 15 minutes
+      maxAge: 3 * 24 * 60 * 60 * 1000 // 3 days
     });
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
-    });
+
     return res.send(response(messages.USER_LOGIN, { user }, statusCodes.OK, true));
   } catch (error) {
     console.log(error);
     return next(error);
   }
 };
+
 
 const verifymail = async(req,res,next)=>{
   try {
@@ -48,24 +47,39 @@ const verifymail = async(req,res,next)=>{
     return (next(error))
   }
 }
-const refreshToken = async (req, res, next) => {
+// const refreshToken = async (req, res, next) => {
+//   try {
+//     const { refreshToken } = req.cookies;
+//     console.log("refreshToken from cookie:", refreshToken);
+
+//     const newAccessToken = await services.accessTokenRefresh(refreshToken);
+
+//     // ✅ Set accessToken cookie here
+//     res.cookie('accessToken', newAccessToken, {
+//       httpOnly: true,
+//       secure: false,
+//       sameSite: 'lax',
+//       maxAge: 15 * 60 * 1000, // 15 minutes
+//     });
+
+//     return res.send(response("Access token regenerated",{newAccessToken}, statusCodes.OK));
+//   } catch (error) {
+//     return next(error);
+//   }
+// };
+
+const logout = async(req,res,next)=>{
   try {
-    const { refreshToken } = req.cookies;
-    console.log("refreshToken from cookie:", refreshToken);
-
-    const newAccessToken = await services.accessTokenRefresh(refreshToken);
-
-    // ✅ Set accessToken cookie here
-    res.cookie('accessToken', newAccessToken, {
+    // Remove the access token cookie
+    res.clearCookie("accessToken", {
       httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-      maxAge: 15 * 60 * 1000, // 15 minutes
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
     });
+    return res.send(response("logout sucess",{},200,false))}
+    catch(error){
+      next(error)
+    }
 
-    return res.send(response("Access token regenerated",{newAccessToken}, statusCodes.OK));
-  } catch (error) {
-    return next(error);
-  }
-};
-module.exports ={userSignUp,userLogin,verifymail,refreshToken}
+}
+module.exports ={userSignUp,userLogin,verifymail,logout}

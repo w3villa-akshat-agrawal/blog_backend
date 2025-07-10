@@ -1,5 +1,5 @@
 const express = require('express');
-const { userSignUp, userLogin,verifymail,refreshToken } = require('../controller/userController');
+const { userSignUp, userLogin,verifymail,refreshToken,logout } = require('../controller/userController');
 const verifyAccessToken = require('../middleware/tokenVerification');
 const router = express.Router()
 
@@ -12,7 +12,8 @@ router.get("/auth/verifymail",verifymail)
 router.get("/testing1",verifyAccessToken,(req,res)=>{
     res.send("working properly")
 })
-router.get("/userTokenRefresh",refreshToken)
+router.get("/auth/logout",verifyAccessToken,logout)
+// router.get("/userTokenRefresh",refreshToken)
 module.exports = router
 
 
