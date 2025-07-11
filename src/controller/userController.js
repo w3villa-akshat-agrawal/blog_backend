@@ -6,10 +6,9 @@ const userSignUp = async (req, res,next) => {
   try {
     const user = await services.signUp(req.body);
     if(user){
-      return res.send(response(messages.USER_CREATED,"",statusCodes.CREATED))
+      return res.send(response( true,messages.USER_CREATED,"",statusCodes.CREATED))
     }
   } catch (error) {
-    console.log(error)
   return next(error);
   }
 };
@@ -26,7 +25,7 @@ const userLogin = async (req, res, next) => {
       maxAge: 3 * 24 * 60 * 60 * 1000 // 3 days
     });
 
-    return res.send(response(messages.USER_LOGIN, { user }, statusCodes.OK, true));
+    return res.send(response(true,messages.USER_LOGIN,{}, statusCodes.OK, true));
   } catch (error) {
     console.log(error);
     return next(error);
@@ -37,10 +36,9 @@ const userLogin = async (req, res, next) => {
 const verifymail = async(req,res,next)=>{
   try {
     const token = req.query.token
-    console.log(token)
     const mail = await services.mailTokenVerification(token)
     if(mail){
-      return res.send(response("mail verified",null,statusCodes.OK,))
+      return res.send(response(true,"mail verified",null,statusCodes.OK,))
     }
     
   } catch (error) {
@@ -76,7 +74,7 @@ const logout = async(req,res,next)=>{
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
     });
-    return res.send(response("logout sucess",{},200,false))}
+    return res.send(response(true,"logout sucess",{},200,false))}
     catch(error){
       next(error)
     }

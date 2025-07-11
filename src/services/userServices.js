@@ -18,11 +18,11 @@ const signUp = async (data) => {
     const { username, email, password, phone, firstName, lastName, isActive, status } = value;
 
     const existingUser = await checkExistence(User, {
-      username,
+      email,
     });
 
     if (existingUser) {
-      throw new ApiError("User already exists with this email or username", 409);
+      throw new ApiError("User already exists with this email", 409);
     }
 
     let hash = null;
@@ -33,7 +33,7 @@ const signUp = async (data) => {
     const user = await User.create({
       username,
       email,
-      password: hash, // will be null if from Google
+      password: hash, 
       phone,
       firstName,
       lastName,
@@ -56,19 +56,22 @@ const signUp = async (data) => {
       console.log("mail sent")
 
     } catch (error) {
+      return user;
       throw (new ApiError("mail error"))
     }
 
 
     return user;
   } catch (err) {
+    console.log(err.message)
     throw err;
   }
 };
 
 
 const login = async (data, token) => {
-  const { error, value } = check.loginSchema.validate(data);
+  try {
+    const { error, value } = check.loginSchema.validate(data);
   if (error) throw new ApiError(error.details[0].message, 400);
 
   const { email, password } = value;
@@ -83,6 +86,7 @@ const login = async (data, token) => {
       jwt.verify(token, process.env.JWT_ACCESS);
       throw new ApiError("User already logged in", 400);
     } catch (err) {
+      
       console.log("Old token expired or invalid, proceeding with login...");
     }
   }
@@ -99,6 +103,9 @@ const login = async (data, token) => {
   );
 
   return { userLoginToken, user: existingUser };
+  } catch (error) {
+    throw(error)
+  }
 };
 
 module.exports = { login };
