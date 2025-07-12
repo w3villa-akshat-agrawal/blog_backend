@@ -9,6 +9,7 @@ const { Server } = require('socket.io');
 const userRoutes = require('./src/routes/userRoutes.js');
 const social = require('./src/routes/userSocial.js');
 const userBlog = require('./src/routes/blogRoutes.js');
+const adminRoutes = require('./src/routes/adminRoutes.js')
 const userBlogComment = require('./src/routes/comment.js');
 const googleLogin = require('./src/routes/auth.js');
 const connectDB = require('./config/mongo_connection.js');
@@ -61,6 +62,7 @@ app.use("/api/v1", userRoutes);
 app.use("/api/v1/blog", userBlog);
 app.use("/api/v1/blogComment", userBlogComment);
 app.use("/app/v1/social", social);
+app.use("/api/v1/admin",adminRoutes)
 app.use(errorHandle);
 
 // Start server only after DBs are connected

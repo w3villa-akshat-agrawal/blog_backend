@@ -3,11 +3,9 @@ const {blogCreateService,getAllBlogService,blogDelete, blogUpdate,desiredUserFet
 const createBlog = async (req,res,next) => {
     try {
          const userId =req.user.id
-         console.log(userId)
          const result = await (blogCreateService(userId,req.body))
-         console.log(result)
          if(result){
-            return res.send(response("blog created successfully",{result},200,true))
+            return res.send(response(true,"blog created successfully",{result},200,true))
          }
     } catch (error) {
         console.log(error)
@@ -49,7 +47,7 @@ const anyUserDetail = async(req,res,next)=>{
     const desiredUserId = req.params.id
     const result = await desiredUserFetch(desiredUserId)
     if(result){
-                return res.send(response("user fetched",result,200))
+                return res.send(response(true,"user fetched",result,200))
     }
 
 }

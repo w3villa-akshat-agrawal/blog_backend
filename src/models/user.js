@@ -28,6 +28,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true
     },
+    isAdmin: {
+  type: DataTypes.BOOLEAN,
+  allowNull: false,
+  defaultValue: false,
+},
     isEmailVerified: DataTypes.BOOLEAN,
     token: DataTypes.STRING,
     firstName: DataTypes.STRING,

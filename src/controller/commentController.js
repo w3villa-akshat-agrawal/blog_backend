@@ -10,7 +10,7 @@ const createComment = async (req, res, next) => {
         const data = req.body
         const result = await (commentCreate(blogId, userId, data))
         if (result) {
-            return res.send("comment done", result, 200, true)
+            return res.send(true,"comment done", result, 200, true)
         }
     } catch (error) {
         console.log(error)
@@ -26,7 +26,7 @@ const getComments = async (req, res, next) => {
         const { page, limit } = req.query
         const result = await fetchComments(blogId, page, limit)
         if (result) {
-            return res.send(response("comments fetched success", result, 200, true))
+            return res.send(response(true,"comments fetched success", result, 200, true))
         }
 
     } catch (error) {
@@ -42,7 +42,7 @@ const deleteComment = async (req, res, next) => {
         userId = req.user.id
         const result = await commentDelete(comentId, userId)
         if (result) {
-            return res.send("comment deleted", result, 200, true)
+            return res.send(true,"comment deleted", result, 200, true)
         }
         else {
             console.log("service problem")

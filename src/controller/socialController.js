@@ -1,5 +1,5 @@
 const response = require("../../utils/response")
-const { followingService } = require("../services/socialServices")
+const { followingService,getfollowingService,getfollowerService } = require("../services/socialServices")
 
 
 const addFollowing = async (req,res,next) =>{
@@ -15,5 +15,34 @@ const addFollowing = async (req,res,next) =>{
     }
     
 }
+const getFollowings = async(req,res,next)=>{
+     const userId = req.user.id; 
+    const search = req.query.search || "";           
+    const page = parseInt(req.query.page) || 1;     
+    const limit = parseInt(req.query.limit) || 10; 
+  try {
+    const following = await getfollowingService(search,page,limit,userId)
+    return res.send(response(true,"following data",following,200,true))
+  } catch (error) {
+    next(error)
+  }
+}
 
-module.exports = {addFollowing}
+
+const getFollower = async(req,res,next)=>{
+     const userId = req.user.id; 
+     console.log(userId)
+    const search = req.query.search || "";           
+    const page = parseInt(req.query.page) || 1;     
+    const limit = parseInt(req.query.limit) || 10; 
+  try {
+    const following = await getfollowerService(search,page,limit,userId)
+    return res.send(response(true,"follower data",following,200,true))
+  } catch (error) {
+    console.log(error)
+    next(error)
+  }
+}
+
+
+module.exports = {addFollowing,getFollowings,getFollower}
