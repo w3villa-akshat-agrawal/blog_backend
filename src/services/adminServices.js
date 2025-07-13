@@ -1,32 +1,50 @@
 const ApiError = require("../../utils/globalError");
 const { Blog, sequelize,Comment,User } = require("../models");
 
+const { Op } = require("sequelize");
 
 
+const adminService = async (userId, page , limit , search = "") => {
+  const offset = (page - 1) * limit;
 
-const adminService = async (userId) => {
   try {
-            const user = await User.findByPk(userId, {
-    attributes: ["id", "username", "isAdmin"],
-  });
+  
+    const user = await User.findByPk(userId, {
+      attributes: ["id", "username", "isAdmin"],
+    });
 
-  if (!user) {
-    throw new ApiError("User not found", 404);
-  }
+    if (!user) {
+      throw new ApiError("User not found", 404);
+    }
 
-  if (user.isAdmin === true) {
-    const users =  await User.findAll({
-       attributes: ["id", "username"],
-    })
-    return ({user,users})
-  } else {
-    throw( new ApiError("You are not admin. Sorry 😢", 403));
-  }
+    if (!user.isAdmin) {
+      throw new ApiError("You are not admin. Sorry 😢", 403);
+    }
+    const whereClause = search
+      ? { username: { [Op.like]: `%${search}%` } }
+      : {};
+    const users = await User.findAll({
+      attributes: ["id", "username"],
+      where: whereClause,
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+    });
+  
+
+
+    return {
+      currentAdmin: { id: user.id, username: user.username },
+      users,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        count: users.length, // optional count of this page
+      },
+    };
   } catch (error) {
-     throw(error)
+    throw error;
   }
 };
-
 
 const blockingUser = async (userId, userBlockId) => {
   try {

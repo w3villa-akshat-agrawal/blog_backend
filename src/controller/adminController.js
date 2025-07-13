@@ -3,9 +3,12 @@ const { adminService, blockingUser, unblockingUser } = require("../services/admi
 
 
 const adminPage = async(req,res,next)=>{
-    userId = req.user.id
+    const userId = req.user.id
+    const search = req.query.search
+    const page = req.query.page||1
+    const limit = req.query.limit||10
 try {
-    const result = await adminService(userId)
+    const result = await adminService(userId,page,limit,search)
     return res.send(response(true,"adminPanneldetails",result,200,true))
 } catch (error) {
     console.log(error)
