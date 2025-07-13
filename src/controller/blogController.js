@@ -16,7 +16,7 @@ const createBlog = async (req,res,next) => {
 const allBlog = async(req,res,next)=>{
     try {
             const blogs  = await getAllBlogService()
-            return res.send(response("blogs fetch success",blogs,200,true))
+            return res.send(response(true,"blogs fetch success",blogs,200,true))
     } catch (error) {
         next(error)
     }

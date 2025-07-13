@@ -5,7 +5,7 @@ const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
 const http = require('http');
 const { Server } = require('socket.io');
-
+const cors = require("cors");
 const userRoutes = require('./src/routes/userRoutes.js');
 const social = require('./src/routes/userSocial.js');
 const userBlog = require('./src/routes/blogRoutes.js');
@@ -42,6 +42,14 @@ io.on('connection', (socket) => {
   chatHandler(io,socket) // pass io and socket instance
 });
 
+
+// cors
+app.use(
+  cors({
+    origin: "http://localhost:5173", // your frontend Vite port
+    credentials: true, // needed if you're using cookies or sessions
+  })
+);
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
@@ -55,7 +63,7 @@ app.use(passport.session());
 
 // Routes
 app.get("/", (req, res) => {
-  res.send("Hello from blog app");
+  res.send("Hello from blog app backend");
 });
 app.use("/api/v1", googleLogin);
 app.use("/api/v1", userRoutes);
@@ -66,7 +74,7 @@ app.use("/api/v1/admin",adminRoutes)
 app.use(errorHandle);
 
 // Start server only after DBs are connected
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3010
 const startServer = async () => {
   try {
     await db.sequelize.authenticate();
