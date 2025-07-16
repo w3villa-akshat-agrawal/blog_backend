@@ -1,3 +1,4 @@
+const redis = require("../../config/redis_connection");
 const messages = require("../../utils/messages");
 const response = require("../../utils/response");
 const statusCodes = require("../../utils/statusCode");
@@ -74,6 +75,7 @@ const logout = async(req,res,next)=>{
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
     });
+    await redis.del("allBlog");
     return res.send(response(res,true,"logout sucess",{},200))}
     catch(error){
       next(error)

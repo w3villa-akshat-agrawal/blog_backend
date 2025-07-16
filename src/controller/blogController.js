@@ -57,9 +57,10 @@ const anyUserDetail = async(req,res,next)=>{
 }
 
 const blogParticular = async (req,res,next)=>{
+    const UserId = req.user.id
     const BlogId = req.params.id
     try {
-        const result = await particularBlogServices(BlogId)
+        const result = await particularBlogServices(BlogId,UserId)
         if(res){
             return response(res,true,"blog sent",result,200)
         }

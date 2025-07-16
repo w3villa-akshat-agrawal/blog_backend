@@ -90,17 +90,17 @@ const getAllBlogService = async (id) => {
       ]
     });
 
-    await redis.set(cacheKey, JSON.stringify(allBlog), 'EX', 120); // expires in 2 minutes
+    await redis.set(cacheKey, JSON.stringify({userId:userID,data:allBlog}), 'EX', 120); // expires in 2 minutes
     console.log("Coming from DB");
-    newData = allBlog.append
-    return allBlog;
+
+    return {userId:userID,data:allBlog};
   } catch (error) {
     console.log(error);
     throw new ApiError("Server error");
   }
 };
 
-const particularBlogServices = async (id) => {
+const particularBlogServices = async (id,userId) => {
   try {
     const userBlog = await Blog.findAll({
       where: { id: id },
@@ -132,7 +132,7 @@ const particularBlogServices = async (id) => {
       throw new ApiError("Blog not found", 400);
     }
 
-    return userBlog;
+    return {userId:userId,data:userBlog};
   } catch (error) {
     console.log(error);
     throw new ApiError("Server error");
