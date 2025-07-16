@@ -1,11 +1,11 @@
 const response = require("../../utils/response")
-const {blogCreateService,getAllBlogService,blogDelete, blogUpdate,desiredUserFetch} = require ("../services/blogServices.js")
+const {blogCreateService,getAllBlogService,blogDelete, blogUpdate,desiredUserFetch, particularBlogServices} = require ("../services/blogServices.js")
 const createBlog = async (req,res,next) => {
     try {
          const userId =req.user.id
          const result = await (blogCreateService(userId,req.body))
          if(result){
-            return res.send(response(true,"blog created successfully",{result},200,true))
+            return (response(res,true,"blog created successfully",{result},200))
          }
     } catch (error) {
         console.log(error)
@@ -14,9 +14,10 @@ const createBlog = async (req,res,next) => {
 
 }
 const allBlog = async(req,res,next)=>{
+    userId = req.user.id
     try {
-            const blogs  = await getAllBlogService()
-            return res.send(response(true,"blogs fetch success",blogs,200,true))
+            const blogs  = await getAllBlogService(userId)
+            return (response(res,true,"blogs fetch success",blogs,200))
     } catch (error) {
         next(error)
     }
@@ -28,7 +29,7 @@ const deleteBlog = async(req,res,next)=>{
                 const blogId = req.params.id
                 const result = await blogDelete(userId,blogId)
                 if(result){
-                         return res.send(response("blog deleted success",200))
+                         return res.send(response(res,true,"blog deleted success",200))
                 }
         } catch (error) {
             next(error)
@@ -40,15 +41,30 @@ const updateBlog = async (req,res,next) =>{
     const data = req.body
     const result = await blogUpdate(userId,blogId,data)
     if(result){
-        return res.send(response("blog updated sucess",200))
+        return res.send(response(res,true,"blog updated sucess",{},200))
     }
 }
 const anyUserDetail = async(req,res,next)=>{
-    const desiredUserId = req.params.id
+   try {
+         const desiredUserId = req.user.id
     const result = await desiredUserFetch(desiredUserId)
     if(result){
-                return res.send(response(true,"user fetched",result,200))
+                return (response(res,true,"user fetched",result,200))
     }
-
+   } catch (error) {
+    next(error)
+   }
 }
-module.exports = {createBlog,allBlog,deleteBlog,updateBlog,anyUserDetail}
+
+const blogParticular = async (req,res,next)=>{
+    const BlogId = req.params.id
+    try {
+        const result = await particularBlogServices(BlogId)
+        if(res){
+            return response(res,true,"blog sent",result,200)
+        }
+    } catch (error) {
+        next(error)
+    }
+}
+module.exports = {createBlog,allBlog,deleteBlog,updateBlog,anyUserDetail,blogParticular}

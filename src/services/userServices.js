@@ -56,15 +56,25 @@ const signUp = async (data) => {
       console.log("mail sent")
 
     } catch (error) {
+
       return user;
-      throw (new ApiError("mail error"))
+      throw (new ApiError("mail error",))
     }
 
 
     return user;
-  } catch (err) {
-    console.log(err.message)
-    throw err;
+  }catch (err) {
+    console.log("Signup Error:", err.message);
+
+    // Handle Sequelize Unique Constraint Error (username already exists)
+    if (err.name === "SequelizeUniqueConstraintError") {
+      const field = err.errors[0]?.path || "field";
+      const value = err.errors[0]?.value || "value";
+      throw new ApiError(`${field} '${value}' already exists`, 409);
+    }
+
+    // Fallback for any other error
+    throw new ApiError(err.message || "Something went wrong", 500);
   }
 };
 
@@ -104,7 +114,7 @@ const login = async (data, token) => {
 
   return { userLoginToken, user: existingUser };
   } catch (error) {
-    throw(error)
+    throw (new ApiError(error.message))
   }
 };
 

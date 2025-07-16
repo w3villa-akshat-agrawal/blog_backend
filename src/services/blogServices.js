@@ -11,7 +11,7 @@ const Followers = require("../models/follower");
 
 
 const blogCreateService = async (userId, data) => {
-  const { title, body, type } = data;
+  const { title, body, type='public' } = data;
 
   const existingBlog = await checkExistence(Blog, { title });
   if (existingBlog) {
@@ -22,16 +22,120 @@ const blogCreateService = async (userId, data) => {
     const newBlog = await Blog.create({
       title,
       body,
-      type,
+      type ,
       userId,
     });
-    const exists = await redis.exists("allBlog")
-    if(exists){
-      await redis.del("allBlog")    
-    }
+
+    // ✅ After creation, immediately fetch fresh list and update Redis
+    // const allBlog = await Blog.findAll({
+    //   where: { type: 'public' },
+    //   attributes: ['id', 'title', 'body'],
+    //   order:[["createdAt","DESC"]],
+    //   include: [
+    //     {
+    //       model: User,
+    //       as: 'author',
+    //       attributes: ['id', 'username']
+    //     },
+    //     {
+    //       model: Comment,
+    //       as: "comments",
+    //       attributes: ["comment"],
+    //       separate: true,
+    //       order: [['createdAt', 'DESC']]
+    //     }
+    //   ]
+    // });
+
+    // await redis.set("allBlog", JSON.stringify(allBlog), 'EX', 120);
+    // console.log("✅ Redis cache refreshed after new blog creation");
+   await redis.del("allBlog");
     return newBlog.id;
+
   } catch (error) {
+    console.error(error);
     throw new ApiError("DB error while creating blog", 500);
+  }
+};
+
+const getAllBlogService = async (id) => {
+  const userID = id;
+  const cacheKey = "allBlog";
+  try {
+    const cachedBlog = await redis.get(cacheKey);
+    console.log(cachedBlog)
+
+    if (cachedBlog) {
+      console.log("Coming from Redis");
+      return JSON.parse(cachedBlog); // convert back to object
+    }
+
+    const allBlog = await Blog.findAll({
+      where:{type:"public"},
+      attributes: ['id', 'title', 'body'],
+      order:[["createdAt","DESC"]],
+      include: [
+        {
+          model: User,
+          as: 'author',
+          attributes: ['id', 'username']
+        },
+        {
+          model: Comment,
+          as: "comments",
+          attributes: ["comment"],
+          separate: true,
+          order: [['createdAt', 'DESC']]
+        }
+      ]
+    });
+
+    await redis.set(cacheKey, JSON.stringify(allBlog), 'EX', 120); // expires in 2 minutes
+    console.log("Coming from DB");
+    newData = allBlog.append
+    return allBlog;
+  } catch (error) {
+    console.log(error);
+    throw new ApiError("Server error");
+  }
+};
+
+const particularBlogServices = async (id) => {
+  try {
+    const userBlog = await Blog.findAll({
+      where: { id: id },
+      attributes: ['id', 'title', 'body'],
+      include: [
+        {
+          model: User,
+          as: 'author',
+          attributes: ['id', 'username']
+        },
+        {
+          model: Comment,
+          as: 'comments',
+          attributes: ['comment'],
+          separate: true,
+          order: [['createdAt', 'DESC']],
+          include: [
+            {
+              model: User,
+              as: 'commentAuthor',
+              attributes: ['id', 'username']
+            }
+          ]
+        }
+      ]
+    });
+
+    if (!userBlog || userBlog.length === 0) {
+      throw new ApiError("Blog not found", 400);
+    }
+
+    return userBlog;
+  } catch (error) {
+    console.log(error);
+    throw new ApiError("Server error");
   }
 };
 
@@ -65,6 +169,29 @@ const blogDelete = async (userId, blogId) => {
 
 
 
+
+
+
+// const getAllBlogService = async () => {
+//   try {
+//     const [blogs] = await sequelize.query(
+//       "SELECT `userId`, `title`, `body`,`id` FROM `Blogs` WHERE `type` = 'public' ORDER BY `createdAt` DESC"
+//     );
+//     return blogs;
+//   } catch (error) {
+//     console.log(error);
+//     throw new ApiError("Error in query", 501);
+//   }
+// };
+
+
+
+// jHm4lnXzwbRvDzxx mongo db
+// AQSwzaNo7JZLvKNd    blog_App
+
+
+
+
 const blogUpdate = async (userId,blogId,data)=>{
    try {
     // Fetch the blog by its ID
@@ -91,66 +218,6 @@ const blogUpdate = async (userId,blogId,data)=>{
     throw error;
   }
 }
-
-
-
-
-// const getAllBlogService = async () => {
-//   try {
-//     const [blogs] = await sequelize.query(
-//       "SELECT `userId`, `title`, `body`,`id` FROM `Blogs` WHERE `type` = 'public' ORDER BY `createdAt` DESC"
-//     );
-//     return blogs;
-//   } catch (error) {
-//     console.log(error);
-//     throw new ApiError("Error in query", 501);
-//   }
-// };
-
-
-
-// jHm4lnXzwbRvDzxx mongo db
-// AQSwzaNo7JZLvKNd    blog_App
-
-const getAllBlogService = async () => {
-  const cacheKey = "allBlog";
-  try {
-    const cachedBlog = await redis.get(cacheKey);
-
-    if (cachedBlog) {
-      console.log("Coming from Redis");
-      return JSON.parse(cachedBlog); // convert back to object
-    }
-
-    const allBlog = await Blog.findAll({
-      where: { type: 'public' },
-      attributes: ['id', 'title', 'body'],
-      order:[["createdAt","DESC"]],
-      include: [
-        {
-          model: User,
-          as: 'author',
-          attributes: ['id', 'username']
-        },
-        {
-          model: Comment,
-          as: "comments",
-          attributes: ["comment"],
-          separate: true,
-          limit: 5,
-          order: [['createdAt', 'DESC']]
-        }
-      ]
-    });
-
-    await redis.set(cacheKey, JSON.stringify(allBlog), 'EX', 120); // expires in 2 minutes
-    console.log("Coming from DB");
-    return allBlog;
-  } catch (error) {
-    console.log(error);
-    throw new ApiError("Query error");
-  }
-};
 
 
 
@@ -322,6 +389,7 @@ const desiredUserFetch = async (id) => {
                 model: Comment,
                 as: 'comments',
                 attributes: ['comment'],
+              
                 include: [
                   {
                     model: User,
@@ -330,7 +398,8 @@ const desiredUserFetch = async (id) => {
                   }
                 ]
               }
-            ]
+            ],
+             order: [['createdAt','DESC']]
           }
         ]
       }),
@@ -380,4 +449,4 @@ console.log(followingAgg)
 
 
 
-module.exports = { blogCreateService, getAllBlogService,blogDelete,blogUpdate,desiredUserFetch };
+module.exports = { blogCreateService, getAllBlogService,blogDelete,blogUpdate,desiredUserFetch,particularBlogServices };

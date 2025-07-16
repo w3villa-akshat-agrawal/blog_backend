@@ -6,7 +6,7 @@ const userSignUp = async (req, res,next) => {
   try {
     const user = await services.signUp(req.body);
     if(user){
-      return res.send(response( true,messages.USER_CREATED,"",statusCodes.CREATED))
+      return (response(res,true,"signUpSuccess",{},201))
     }
   } catch (error) {
   return next(error);
@@ -25,7 +25,7 @@ const userLogin = async (req, res, next) => {
       maxAge: 3 * 24 * 60 * 60 * 1000 // 3 days
     });
 
-    return res.send(response(true,messages.USER_LOGIN,{}, statusCodes.OK, true));
+    return (response(res,true,"login Successful",{},200));
   } catch (error) {
     console.log(error);
     return next(error);
@@ -74,7 +74,7 @@ const logout = async(req,res,next)=>{
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
     });
-    return res.send(response(true,"logout sucess",{},200,false))}
+    return res.send(response(res,true,"logout sucess",{},200))}
     catch(error){
       next(error)
     }

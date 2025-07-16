@@ -8,9 +8,10 @@ const createComment = async (req, res, next) => {
         const userId = req.user.id
         const blogId = req.params.id
         const data = req.body
+        console.log(userId,blogId,data)
         const result = await (commentCreate(blogId, userId, data))
         if (result) {
-            return res.send(true,"comment done", result, 200, true)
+            return res.send(response(res,true,"comment done", result, 200))
         }
     } catch (error) {
         console.log(error)

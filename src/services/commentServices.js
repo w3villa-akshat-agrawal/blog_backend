@@ -16,7 +16,6 @@ const commentCreate = async (blogId,userId,data)=>{
         return createdComment
     
     };
-    throw(new ApiError("blog not found "))
    } catch (error) {
         throw (new ApiError("query problem"))
    }

@@ -1,4 +1,11 @@
-const response = (success = true,message="success",data = {},code= 200,status = true)=>{
-    return ({success ,message,data,code,status})
-}
+const response = (res, success = true, message = "Success", data = {}, code = 200) => {
+  return res.status(code).json({
+    success,
+    message,
+    data,
+    code,
+    status: success,
+  });
+};
+
 module.exports = response;
