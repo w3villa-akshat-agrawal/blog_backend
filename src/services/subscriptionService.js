@@ -13,8 +13,9 @@ const subscriptionService = async (userId, data) => {
     if (!user) {
       throw new ApiError("User not found", 404);
     }
-
-    if (user.subscriptionPlanId === planId) {
+    // console.log(typeof(user.subscriptionPlanId))
+    // console.log(typeof(planId))
+    if (user.subscriptionPlanId == planId) {
       throw new ApiError("Already subscribed to this plan", 400);
     }
 
