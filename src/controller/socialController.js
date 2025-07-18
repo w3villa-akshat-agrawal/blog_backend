@@ -8,7 +8,7 @@ const addFollowing = async (req,res,next) =>{
     userFollowingData = req.body
     const result = await followingService(userId,userFollowingData) 
     if(result){
-        return res.send(response(res,true,"add to following",result,200))
+        return (response(res,true,"add to following",result,200))
     }
     } catch (error) {
         next(error)
