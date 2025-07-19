@@ -19,9 +19,11 @@ const subscriptionService = async (userId, data) => {
       throw new ApiError("Already subscribed to this plan", 400);
     }
 
-    const planIssueDate = new Date(); // current date and time
-    const planExpiryDate = new Date(planIssueDate.getTime() + period * 10 * 60 * 1000); // add (period * 10 mins)
-
+    // const planIssueDate = new Date(); // current date and time
+    const planIssueDate = Date.now()
+    console.log('date',planIssueDate)
+    const planExpiryDate =(planIssueDate + period * 1 * 60 * 1000); 
+    console.log('expiryDate',planExpiryDate)
     await User.update(
       {
         subscriptionPlanId: planId,

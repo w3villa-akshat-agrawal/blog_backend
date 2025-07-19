@@ -17,7 +17,8 @@ const connectDB = require('./config/mongo_connection.js');
 const errorHandle = require('./src/middleware/errorHandling.js');
 const db = require('./src/models');
 const chatHandler = require('./src/socket/chat.js');
-
+// cron job
+require("./src/cornJobs/downgradeUsers.js")
 // Load environment variables
 dotenv.config();
 require('./utils/passportconfig.js');

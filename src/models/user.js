@@ -44,13 +44,13 @@ module.exports = (sequelize, DataTypes) => {
   isActive: DataTypes.BOOLEAN,
   status: DataTypes.BOOLEAN,
   planActivatedAt: {
-    type: DataTypes.DATE,
-    allowNull: true
-  },
-  planExpiresAt: {
-    type: DataTypes.DATE,
-    allowNull: true
-  },
+  type: DataTypes.BIGINT,
+  allowNull: true
+},
+planExpiresAt: {
+  type: DataTypes.BIGINT,
+  allowNull: true
+},
   subscriptionPlanId: {
     type: DataTypes.INTEGER,
     allowNull: false,
