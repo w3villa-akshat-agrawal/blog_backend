@@ -1,6 +1,6 @@
 
 const response = require("../../utils/response")
-const subscriptionService = require("../services/subscriptionService")
+const {subscriptionService }= require("../services/subscriptionService")
 
 const subscriptionController = async (req,res,next)=>{
     userId = req.user.id

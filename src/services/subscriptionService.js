@@ -1,5 +1,7 @@
+const redis = require("../../config/redis_connection");
 const ApiError = require("../../utils/globalError");
 const { User } = require("../models");
+const subscriptionplan = require("../models/subscriptionplan");
 
 const subscriptionService = async (userId, data) => {
   const { planId, period } = data;
@@ -9,7 +11,6 @@ const subscriptionService = async (userId, data) => {
       where: { id: userId },
       attributes: ["subscriptionPlanId"]
     });
-
     if (!user) {
       throw new ApiError("User not found", 404);
     }
@@ -30,9 +31,9 @@ const subscriptionService = async (userId, data) => {
         planActivatedAt: planIssueDate,
         planExpiresAt: planExpiryDate,
       },
-      { where: { id: userId } }
+      { where: { id: userId } } 
     );
-
+    await redis.set("plan", JSON.stringify({ planId: planId }));
     return { message: "Subscription updated", expiresAt: planExpiryDate };
 
   } catch (error) {
@@ -40,4 +41,13 @@ const subscriptionService = async (userId, data) => {
   }
 };
 
-module.exports = subscriptionService;
+const getPlanDetail = async(id)=>{
+   try {
+     const res = await subscriptionplan.findOne({where:{id}})
+    return res
+   } catch (error) {
+        throw (new ApiError(error.message))
+   }
+}
+
+module.exports = {subscriptionService,getPlanDetail};

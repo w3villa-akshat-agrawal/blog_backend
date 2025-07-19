@@ -1,6 +1,6 @@
 const cron = require('node-cron');
 const db = require('../../config/mySql_connection');
-
+const redis = require('../../config/redis_connection');
 
 // ⏲ Schedule every 10 minutes
 cron.schedule('*/5 * * * *', async () => {
@@ -16,6 +16,7 @@ cron.schedule('*/5 * * * *', async () => {
       WHERE planExpiresAt < UNIX_TIMESTAMP() * 1000
         AND subscriptionPlanId != 1
     `);
+    await redis.del("plan")
 
     console.log(`✅ Downgraded ${result.affectedRows} user(s)`);
   } catch (err) {
