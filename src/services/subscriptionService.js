@@ -1,5 +1,6 @@
 const redis = require("../../config/redis_connection");
 const ApiError = require("../../utils/globalError");
+const clearUserAndPlanCache = require("../../utils/redisKeysDel");
 const { User } = require("../models");
 const subscriptionplan = require("../models/subscriptionplan");
 
@@ -33,7 +34,9 @@ const subscriptionService = async (userId, data) => {
       },
       { where: { id: userId } } 
     );
-    await redis.set("plan", JSON.stringify({ planId: planId }));
+    await clearUserAndPlanCache()
+    console.log(planId)
+    await redis.set(`user:${userId}`, JSON.stringify({ planId: planId }));
     return { message: "Subscription updated", expiresAt: planExpiryDate };
 
   } catch (error) {

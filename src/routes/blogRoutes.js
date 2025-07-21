@@ -1,14 +1,15 @@
 const express = require("express");
 const verifyAccessToken = require("../middleware/tokenVerification");
 const router = express.Router();
-const {createBlog,allBlog,deleteBlog, updateBlog,anyUserDetail, blogParticular} = require('../controller/blogController.js')
+const {createBlog,allBlog,deleteBlog, updateBlog,anyUserDetail, blogParticular} = require('../controller/blogController.js');
+const checkPlan = require("../middleware/planMiddleware.js");
 
 
 
 // Get the top 10 comments on the basis of CreatedAt only--- for Rest call the comment api.
 // use
 router.get("/allBlog",verifyAccessToken,allBlog)
-router.post("/createBlog",verifyAccessToken,createBlog)
+router.post("/createBlog",verifyAccessToken,checkPlan,createBlog)
 router.delete("/delete/blog/:id",verifyAccessToken,deleteBlog)
 router.patch("/updateBlog/:id",verifyAccessToken,updateBlog)
 router.get("/particularBlog/:id",verifyAccessToken,blogParticular)
