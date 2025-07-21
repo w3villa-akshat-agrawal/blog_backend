@@ -1,6 +1,7 @@
 
 const response = require("../../utils/response")
-const {subscriptionService }= require("../services/subscriptionService")
+const subscriptionplan = require("../models/subscriptionplan")
+const {subscriptionService, getPlanDetail }= require("../services/subscriptionService")
 
 const subscriptionController = async (req,res,next)=>{
     userId = req.user.id
@@ -14,4 +15,14 @@ const subscriptionController = async (req,res,next)=>{
     }
 
 }
-module.exports = {subscriptionController}
+
+const userPlan = async (req,res,next)=>{
+    try {
+        const result = await getPlanDetail()
+        return (response(res,true,"all plans",result,200))
+    } catch (error) {
+        console.log(error)
+        next(error)
+    }
+}
+module.exports = {subscriptionController , userPlan}

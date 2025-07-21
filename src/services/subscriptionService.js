@@ -1,8 +1,8 @@
 const redis = require("../../config/redis_connection");
 const ApiError = require("../../utils/globalError");
 const clearUserAndPlanCache = require("../../utils/redisKeysDel");
-const { User } = require("../models");
-const subscriptionplan = require("../models/subscriptionplan");
+const { User,SubscriptionPlan } = require("../models");
+// const subscriptionplan = require("../models/subscriptionplan");
 
 const subscriptionService = async (userId, data) => {
   const { planId, period } = data;
@@ -46,7 +46,7 @@ const subscriptionService = async (userId, data) => {
 
 const getPlanDetail = async(id)=>{
    try {
-     const res = await subscriptionplan.findOne({where:{id}})
+     const res = await SubscriptionPlan.findAll({attributes:['id','name','maxBlogsPerDay','canFollow','durationHours']})
     return res
    } catch (error) {
         throw (new ApiError(error.message))

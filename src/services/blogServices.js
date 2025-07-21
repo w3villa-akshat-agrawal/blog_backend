@@ -1,10 +1,11 @@
 const redis = require("../../config/redis_connection");
 const checkExistence = require("../../utils/existence");
 const ApiError = require("../../utils/globalError");
-const { Blog, sequelize ,User,Comment} = require("../models");
+const { Blog, sequelize ,User,Comment,SubscriptionPlan} = require("../models");
 const { QueryTypes } = require("sequelize");
 const Following = require("../models/following");
 const Followers = require("../models/follower");
+const clearUserAndPlanCache = require("../../utils/redisKeysDel");
 
 
 
@@ -26,30 +27,10 @@ const blogCreateService = async (userId, data) => {
       userId,
     });
 
-    // ✅ After creation, immediately fetch fresh list and update Redis
-    // const allBlog = await Blog.findAll({
-    //   where: { type: 'public' },
-    //   attributes: ['id', 'title', 'body'],
-    //   order:[["createdAt","DESC"]],
-    //   include: [
-    //     {
-    //       model: User,
-    //       as: 'author',
-    //       attributes: ['id', 'username']
-    //     },
-    //     {
-    //       model: Comment,
-    //       as: "comments",
-    //       attributes: ["comment"],
-    //       separate: true,
-    //       order: [['createdAt', 'DESC']]
-    //     }
-    //   ]
-    // });
-
-    // await redis.set("allBlog", JSON.stringify(allBlog), 'EX', 120);
-    // console.log("✅ Redis cache refreshed after new blog creation");
+    
    await redis.del("allBlog");
+   await redis.incr(`blogCount:${userId}`)
+   await redis.destroy(`userDetail:${userId}`)
     return newBlog.id;
 
   } catch (error) {
@@ -159,38 +140,13 @@ const blogDelete = async (userId, blogId) => {
 
     // Delete the blog
     await Blog.destroy({ where: { id: blogId } });
-
+    await redis.decr(`blogCount:${userId}`)
+    await redis.del(`userDetail:${userId}`)
     return "Blog deleted successfully";
   } catch (error) {
     throw error;
   }
 };
-
-
-
-
-
-
-
-// const getAllBlogService = async () => {
-//   try {
-//     const [blogs] = await sequelize.query(
-//       "SELECT `userId`, `title`, `body`,`id` FROM `Blogs` WHERE `type` = 'public' ORDER BY `createdAt` DESC"
-//     );
-//     return blogs;
-//   } catch (error) {
-//     console.log(error);
-//     throw new ApiError("Error in query", 501);
-//   }
-// };
-
-
-
-// jHm4lnXzwbRvDzxx mongo db
-// AQSwzaNo7JZLvKNd    blog_App
-
-
-
 
 const blogUpdate = async (userId,blogId,data)=>{
    try {
@@ -219,163 +175,17 @@ const blogUpdate = async (userId,blogId,data)=>{
   }
 }
 
-
-
-
-
-
-
-
-// const desiredUserFetch = async (data){ => {
-//   const id = data;
-  
-
-//   const userDetail = await sequelize.query(
-//     // `SELECT \`b\`.\`title\`, \`b\`.\`body\` 2
-//     //  FROM \`Users\` AS \`u\`
-//     //  INNER JOIN \`Blogs\` AS \`b\`
-//     //  ON \`u\`.\`id\` = \`b\`.\`userId\`
-//     //  WHERE \`u\`.\`id\` = ?`,
-
-//      `SELECT u.username, u.email, u.phone, b.title, b.body
-//    FROM Users AS u
-//    INNER JOIN Blogs AS b ON u.id = b.userId
-//    WHERE u.id = ?`,
-//     {
-//       replacements: [id],
-//       type: QueryTypes.SELECT,
-//     }
-//   );
-
-//   return userDetail;
-// };
-// const desiredUserFetch = async (data) => {
-//   const id = data;
-//   console.log(data)
-
-//   try {
-//     const {userDetail,followingData,followerData} = await Promise.all(await User.findOne({
-//       where: { id },
-//       attributes: ['username', 'email', 'phone'],
-//       include: [
-//         {
-//           model: Blog,
-//           as: 'blogs',
-//           attributes: ['title', 'body','id'],
-//           include: [
-//             {
-//               model: Comment,
-//               as: 'comments',
-//               attributes: ['comment'],
-//               include: [
-//                 {
-//                   model: User,
-//                   as: 'commentAuthor',
-//                   attributes: ['username']
-//                 }
-//               ]
-//             }
-//           ]
-//         }
-//       ]
-//     }),await Following.findOne({ userId: id }) || {},await Followers.findOne({ userId: id }) || {};)
-
-// //     const userDetail = await User.findOne({
-// //       where: { id },
-// //       attributes: ['username', 'email', 'phone'],
-// //       include: [
-// //         {
-// //           model: Blog,
-// //           as: 'blogs',
-// //           attributes: ['title', 'body','id'],
-// //           include: [
-// //             {
-// //               model: Comment,
-// //               as: 'comments',
-// //               attributes: ['comment'],
-// //               include: [
-// //                 {
-// //                   model: User,
-// //                   as: 'commentAuthor',
-// //                   attributes: ['username']
-// //                 }
-// //               ]
-// //             }
-// //           ]
-// //         }
-// //       ]
-// //     });
-
-    
-// //  const followingData = await Following.findOne({ userId: id }) || {};
-// //     const followerData = await Followers.findOne({ userId: id }) || {};
-
-//     const followingList = followingData.following || [];
-//     const followerList = followerData.follower || [];
-
-//     if (!userDetail) {
-//       throw new ApiError("User not found", 501);
-//     }
-
-//     return { userDetail, followingList, followerList };
-
-//   } catch (error) {
-//     console.log(error);
-//     throw new ApiError("error");
-//   }
-// };
-
-
-// const desiredUserFetch = async (id) => {
-//   try {
-//     const [userDetail, followingData, followerData] = await Promise.all([
-//       User.findOne({
-//         where: { id },
-//         attributes: ['username', 'email', 'phone'],
-//         include: [
-//           {
-//             model: Blog,
-//             as: 'blogs',
-//             attributes: ['title', 'body', 'id'],
-//             include: [
-//               {
-//                 model: Comment,
-//                 as: 'comments',
-//                 attributes: ['comment'],
-//                 include: [
-//                   {
-//                     model: User,
-//                     as: 'commentAuthor',
-//                     attributes: ['username']
-//                   }
-//                 ]
-//               }
-//             ]
-//           }
-//         ]
-//       }),
-//       Following.findOne({ userId: id }),
-//       Followers.findOne({ userId: id })
-//     ]);
-
-//     if (!userDetail) {
-//       throw new ApiError("User not found", 501);
-//     }
-
-//     const followingList = followingData?.following || [];
-//     const followerList = followerData?.follower || [];
-
-//     return { userDetail, followingList, followerList };
-//   } catch (error) {
-//     console.error(error);
-//     throw new ApiError("Error fetching user data", 500);
-//   }
-// };
-
 const desiredUserFetch = async (id) => {
+  const userData = await redis.get(`userDetail:${id}`)
+      if(userData){
+        const data = JSON.parse(userData)
+        console.log("redis profile")
+        return (data)
+      }
   try {
     const [userDetail, followingAgg, followerAgg] = await Promise.all([
       // Sequelize: Fetch user detail + blogs + comments
+      
       User.findOne({
         where: { id },
         attributes: ['username', 'email', 'phone'],
@@ -397,10 +207,16 @@ const desiredUserFetch = async (id) => {
                     attributes: ['username','id']
                   }
                 ]
-              }
+              },
+              
             ],
              order: [['createdAt','DESC']]
-          }
+          },
+          {
+                model:SubscriptionPlan,
+                as:'subscription',
+                attributes:['name']
+              }
         ]
       }),
 
@@ -434,7 +250,12 @@ console.log(followingAgg)
     // Extract count from aggregation result (array of 1)
     const followingCount = followingAgg[0]?.followingCount || 0;
     const followerCount = followerAgg[0]?.followerCount || 0;
-
+    const data ={
+      userDetail,
+      followingCount,
+      followerCount
+    }
+    await redis.set(`userDetail:${id}`,JSON.stringify(data))
     return {
       userDetail,
       followingCount,
