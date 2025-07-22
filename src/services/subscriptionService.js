@@ -45,9 +45,10 @@ const subscriptionService = async (userId, data) => {
 };
 
 const getPlanDetail = async(id)=>{
+  console.log(id)
    try {
      const res = await SubscriptionPlan.findAll({attributes:['id','name','maxBlogsPerDay','canFollow','durationHours']})
-    return res
+    return {"res":res,userId:id}
    } catch (error) {
         throw (new ApiError(error.message))
    }

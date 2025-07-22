@@ -8,6 +8,7 @@ const { Server } = require('socket.io');
 const cors = require("cors");
 const userRoutes = require('./src/routes/userRoutes.js');
 const subscriptionRoutes = require('./src/routes/subscriptionRoutes.js')
+const paymentRoutes = require('./src/routes/paymentRoute.js')
 const social = require('./src/routes/userSocial.js');
 const userBlog = require('./src/routes/blogRoutes.js');
 const adminRoutes = require('./src/routes/adminRoutes.js')
@@ -74,6 +75,7 @@ app.use("/api/v1/blogComment", userBlogComment);
 app.use("/app/v1/social", social);
 app.use("/api/v1/admin",adminRoutes)
 app.use("/api/v1/userPlan",subscriptionRoutes)
+app.use("/api/payment", paymentRoutes);
 app.use(errorHandle);
 
 // Start server only after DBs are connected

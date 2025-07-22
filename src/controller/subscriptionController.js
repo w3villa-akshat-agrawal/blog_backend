@@ -17,8 +17,9 @@ const subscriptionController = async (req,res,next)=>{
 }
 
 const userPlan = async (req,res,next)=>{
+    userId = req.user.id
     try {
-        const result = await getPlanDetail()
+        const result = await getPlanDetail(userId)
         return (response(res,true,"all plans",result,200))
     } catch (error) {
         console.log(error)
