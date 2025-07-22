@@ -175,7 +175,8 @@ const blogUpdate = async (userId,blogId,data)=>{
   }
 }
 
-const desiredUserFetch = async (id) => {
+const desiredUserFetch = async (id,loginUserID) => {
+  let followingStatus
   const userData = await redis.get(`userDetail:${id}`)
       if(userData){
         const data = JSON.parse(userData)
@@ -183,7 +184,7 @@ const desiredUserFetch = async (id) => {
         return (data)
       }
   try {
-    const [userDetail, followingAgg, followerAgg] = await Promise.all([
+    const [userDetail, followingAgg, followerAgg,isFollowing] = await Promise.all([
       // Sequelize: Fetch user detail + blogs + comments
       
       User.findOne({
@@ -240,26 +241,40 @@ const desiredUserFetch = async (id) => {
             followerCount: { $size: "$follower" }
           }
         }
-      ])
+      ]),
+      Following.findOne({
+  userId: Number(loginUserID), // the person who is logged in
+  'following.userId': Number(id) // the person whose profile is being viewed
+})
+      
+
+
     ]);
 
     if (!userDetail) {
       throw new ApiError("User not found", 501);
+    }
+    if(isFollowing){
+       followingStatus = true
     }
 console.log(followingAgg)
     // Extract count from aggregation result (array of 1)
     const followingCount = followingAgg[0]?.followingCount || 0;
     const followerCount = followerAgg[0]?.followerCount || 0;
     const data ={
+      loginUserID,
       userDetail,
       followingCount,
-      followerCount
+      followerCount,
+      followingStatus
     }
     await redis.set(`userDetail:${id}`,JSON.stringify(data))
     return {
+      loginUserID,
       userDetail,
       followingCount,
-      followerCount
+      followerCount,
+      followingStatus
     };
   } catch (error) {
     console.error(error);

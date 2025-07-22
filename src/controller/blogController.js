@@ -46,13 +46,14 @@ const updateBlog = async (req,res,next) =>{
 }
 const anyUserDetail = async(req,res,next)=>{
     searchId = req.query.searchId
+    const loginUserID = req.user.id
     let desiredUserId = req.user.id
     if(searchId){
         desiredUserId = searchId
     }
    try {
          
-    const result = await desiredUserFetch(desiredUserId)
+    const result = await desiredUserFetch(desiredUserId,loginUserID)
     if(result){
                 return (response(res,true,"user fetched",result,200))
     }

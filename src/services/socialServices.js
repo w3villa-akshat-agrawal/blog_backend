@@ -26,7 +26,7 @@ const followingService = async (userId, userFollowingData) => {
       );
 
       if (alreadyFollowing) {
-        throw new Error("Already following this user");
+        return ({isFollowing:true})
       }
 
       userDoc.following.push({
@@ -67,7 +67,7 @@ const followingService = async (userId, userFollowingData) => {
 
   } catch (error) {
     console.error(" Following Error:", error.message);
-    throw new Error(`Error in followingService: ${error.message}`);
+    throw new Error(`${error.message}`);
   }
 };
 const getfollowingService = async (search, page = 1, limit = 10, userId) => {

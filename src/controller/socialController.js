@@ -11,6 +11,7 @@ const addFollowing = async (req,res,next) =>{
         return (response(res,true,"add to following",result,200))
     }
     } catch (error) {
+      console.log(error)
         next(error)
     }
     
