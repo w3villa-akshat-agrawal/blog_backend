@@ -68,6 +68,7 @@ const verifymail = async(req,res,next)=>{
 // };
 
 const logout = async(req,res,next)=>{
+  userId = req.user.id
   try {
     // Remove the access token cookie
     res.clearCookie("accessToken", {
@@ -76,6 +77,7 @@ const logout = async(req,res,next)=>{
       sameSite: "lax",
     });
     await redis.del("allBlog");
+    await redis.del(`userDetail:${userId}`)
     return res.send(response(res,true,"logout sucess",{},200))}
     catch(error){
       next(error)

@@ -29,7 +29,7 @@ const getFollowings = async(req,res,next)=>{
     const limit = parseInt(req.query.limit) || 10; 
   try {
     const following = await getfollowingService(search,page,limit,userId)
-    return res.send(response(res,true,"following data",following,200))
+    return (response(res,true,"following data",following,200))
   } catch (error) {
     next(error)
   }

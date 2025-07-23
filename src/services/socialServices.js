@@ -76,6 +76,7 @@ const followingService = async (userId, userFollowingData) => {
 };
 
 const getfollowingService = async (search, page = 1, limit = 10, userId) => {
+  console.log(userId)
   try {
     const skip = (page - 1) * limit;
 
