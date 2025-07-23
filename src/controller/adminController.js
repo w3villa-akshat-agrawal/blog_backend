@@ -9,7 +9,7 @@ const adminPage = async(req,res,next)=>{
     const limit = req.query.limit||10
 try {
     const result = await adminService(userId,page,limit,search)
-    return res.send(response(true,"adminPanneldetails",result,200,true))
+    return res.send(response(res,true,"adminPanneldetails",result,200,true))
 } catch (error) {
     console.log(error)
     next(error)

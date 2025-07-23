@@ -6,6 +6,7 @@ const addFollowing = async (req,res,next) =>{
     try {
         userId = req.user.id
     userFollowingData = req.body
+    console.log(req.body)
     const result = await followingService(userId,userFollowingData) 
     if(result){
         return (response(res,true,"add to following",result,200))
@@ -17,13 +18,18 @@ const addFollowing = async (req,res,next) =>{
     
 }
 const getFollowings = async(req,res,next)=>{
-     const userId = req.user.id; 
+     let userId = req.user.id; 
+     const id = req.query.ID
+     console.log(id)
+     if(id){
+      userId = id
+     }
     const search = req.query.search || "";           
     const page = parseInt(req.query.page) || 1;     
     const limit = parseInt(req.query.limit) || 10; 
   try {
     const following = await getfollowingService(search,page,limit,userId)
-    return res.send(response(true,"following data",following,200,true))
+    return res.send(response(res,true,"following data",following,200))
   } catch (error) {
     next(error)
   }
@@ -31,14 +37,19 @@ const getFollowings = async(req,res,next)=>{
 
 
 const getFollower = async(req,res,next)=>{
-     const userId = req.user.id; 
+    let userId = req.user.id; 
+     const id = req.query.ID
+     console.log(id)
+     if(id){
+      userId = id
+     }
      console.log(userId)
     const search = req.query.search || "";           
     const page = parseInt(req.query.page) || 1;     
     const limit = parseInt(req.query.limit) || 10; 
   try {
     const following = await getfollowerService(search,page,limit,userId)
-    return res.send(response(true,"follower data",following,200,true))
+    return (response(res,true,"follower data",following,200))
   } catch (error) {
     console.log(error)
     next(error)

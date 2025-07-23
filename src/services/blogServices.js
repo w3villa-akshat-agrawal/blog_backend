@@ -187,7 +187,7 @@ const desiredUserFetch = async (id,loginUserID) => {
       
       User.findOne({
         where: { id },
-        attributes: ['username', 'email', 'phone'],
+        attributes: ['username', 'email', 'phone','isAdmin'],
         include: [
           {
             model: Blog,
@@ -266,7 +266,10 @@ console.log(followingAgg)
       followerCount,
       followingStatus
     }
-    await redis.set(`userDetail:${id}`,JSON.stringify(data))
+    if(id == loginUserID){
+      await redis.set(`userDetail:${id}`, JSON.stringify(data), 'EX', 480);
+    }
+    
     return {
       loginUserID,
       userDetail,

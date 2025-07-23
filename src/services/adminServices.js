@@ -1,7 +1,8 @@
 const ApiError = require("../../utils/globalError");
-const { Blog, sequelize,Comment,User } = require("../models");
+const { Blog, sequelize,Comment,User,SubscriptionPlan } = require("../models");
 
 const { Op } = require("sequelize");
+
 
 
 const adminService = async (userId, page , limit , search = "") => {
@@ -24,8 +25,13 @@ const adminService = async (userId, page , limit , search = "") => {
       ? { username: { [Op.like]: `%${search}%` } }
       : {};
     const users = await User.findAll({
-      attributes: ["id", "username"],
+      attributes: ["id", "username","isActive","SubscriptionPlanId","phone",'planActivatedAt','planExpiresAt'],
       where: whereClause,
+      include:[{
+        model:SubscriptionPlan,
+        as:'subscription',
+        attributes:['name']
+      }],
       limit: parseInt(limit),
       offset: parseInt(offset),
     });
