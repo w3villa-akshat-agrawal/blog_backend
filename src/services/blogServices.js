@@ -30,7 +30,7 @@ const blogCreateService = async (userId, data) => {
     
    await redis.del("allBlog");
    await redis.incr(`blogCount:${userId}`)
-   await redis.destroy(`userDetail:${userId}`)
+   await redis.del(`userDetail:${userId}`)
     return newBlog.id;
 
   } catch (error) {
@@ -43,9 +43,7 @@ const getAllBlogService = async (id) => {
   const userID = id;
   const cacheKey = "allBlog";
   try {
-    const cachedBlog = await redis.get(cacheKey);
-    console.log(cachedBlog)
-
+    const cachedBlog = await redis.get(cacheKey)
     if (cachedBlog) {
       console.log("Coming from Redis");
       return JSON.parse(cachedBlog); // convert back to object
@@ -71,10 +69,10 @@ const getAllBlogService = async (id) => {
       ]
     });
 
-    await redis.set(cacheKey, JSON.stringify({userId:userID,data:allBlog}), 'EX', 120); // expires in 2 minutes
+    await redis.set(cacheKey, JSON.stringify({data:allBlog}), 'EX', 600); // expires in 2 minutes
     console.log("Coming from DB");
 
-    return {userId:userID,data:allBlog};
+    return {userId:id,data:allBlog};
   } catch (error) {
     console.log(error);
     throw new ApiError("Server error");

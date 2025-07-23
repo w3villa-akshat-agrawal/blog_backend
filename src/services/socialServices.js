@@ -1,4 +1,4 @@
-const Following = require("../models/following");
+const Following = require("../models/following.js");
 const Follower = require("../models/follower.js");
 const ApiError = require("../../utils/globalError.js");
 

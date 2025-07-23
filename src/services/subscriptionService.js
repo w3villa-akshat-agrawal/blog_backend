@@ -1,12 +1,13 @@
-const redis = require("../../config/redis_connection");
-const ApiError = require("../../utils/globalError");
+// const redis = require("../../../config/redis_connection");
+// const ApiError = require("../../../utils/globalError");
 const clearUserAndPlanCache = require("../../utils/redisKeysDel");
+const redis = require("../../config/redis_connection");
 const { User,SubscriptionPlan } = require("../models");
+const ApiError = require("../../utils/globalError");
 // const subscriptionplan = require("../models/subscriptionplan");
 
 const subscriptionService = async (userId, data) => {
   const { planId, period } = data;
-
   try {
     const user = await User.findOne({
       where: { id: userId },

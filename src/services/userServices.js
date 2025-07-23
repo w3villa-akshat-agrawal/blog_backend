@@ -1,7 +1,7 @@
 const check = require("../validation/index.js")
 const { hashedPassword, comparingPassword } = require("../../utils/bcyrptFunctions.js");
-const checkExistence = require("../../utils/existence");
-const { User } = require("../../src/models");
+const checkExistence = require("../../utils/existence.js");
+const { User } = require("../models/index.js");
 const ApiError = require("../../utils/globalError.js");
 const { userToken, tokenCheck } = require("../../utils/tokenHouse.js");
 const sendEmail = require("../../utils/mail.js");

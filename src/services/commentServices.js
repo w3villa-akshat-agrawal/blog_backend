@@ -1,4 +1,4 @@
-const checkExistence = require("../../utils/existence");
+// const checkExistence = require("../../../utils/existence");
 const ApiError = require("../../utils/globalError");
 const { Blog, sequelize,Comment,User } = require("../models");
 const { QueryTypes } = require("sequelize");
