@@ -24,6 +24,7 @@ const adminService = async (userId, page , limit , search = "") => {
     const whereClause = search
       ? { username: { [Op.like]: `%${search}%` } }
       : {};
+      const totalCount = await User.count({ where: whereClause });
     const users = await User.findAll({
       attributes: ["id", "username","isActive","SubscriptionPlanId","phone",'planActivatedAt','planExpiresAt'],
       where: whereClause,
@@ -44,7 +45,7 @@ const adminService = async (userId, page , limit , search = "") => {
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        count: users.length, // optional count of this page
+        count: totalCount
       },
     };
   } catch (error) {

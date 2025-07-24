@@ -77,7 +77,7 @@ app.use("/api/v1/admin",adminRoutes)
 app.use("/api/v1/userPlan",subscriptionRoutes)
 app.use("/api/payment", paymentRoutes);
 app.use(errorHandle);
-
+2
 // Start server only after DBs are connected
 const PORT = process.env.PORT || 3010
 const startServer = async () => {

@@ -21,7 +21,7 @@ const userBlock = async (req,res,next)=>{
      const userId = req.user.id;
      const userBlockId = req.params.id;
     const result = await blockingUser(userId,userBlockId)
-    return (res.send(response(true,"userBlocked",{},200)))
+    return (response(res,true,"userBlocked",{},200))
    } catch (error) {
     console.log(error)
     next(error)
@@ -35,7 +35,7 @@ const userUnBlock = async (req,res,next)=>{
      const userId = req.user.id;
      const userBlockId = req.params.id;
     const result = await unblockingUser(userId,userBlockId)
-    return (res.send(response(true,"userUnBlocked",{},200)))
+    return (response(res,true,"userUnBlocked",{},200))
    } catch (error) {
     console.log(error)
     next(error)
