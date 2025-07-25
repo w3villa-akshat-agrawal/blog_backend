@@ -6,6 +6,7 @@ const ApiError = require("../../utils/globalError.js");
 const { userToken, tokenCheck } = require("../../utils/tokenHouse.js");
 const sendEmail = require("../../utils/mail.js");
 const jwt = require('jsonwebtoken');
+const sendSms = require("../../utils/smsService.js");
 
 
 const signUp = async (data) => {
@@ -29,7 +30,7 @@ const signUp = async (data) => {
     if (password) {
       hash = await hashedPassword(password);
     }
-
+  const result = await sendSms({ phone: `+91${phone}` });
     const user = await User.create({
       username,
       email,
@@ -60,9 +61,7 @@ const signUp = async (data) => {
       return user;
       throw (new ApiError("mail error",))
     }
-
-
-    return user;
+    return {user}; 
   }catch (err) {
     console.log("Signup Error:", err.message);
 
@@ -100,7 +99,9 @@ const login = async (data, token) => {
       console.log("Old token expired or invalid, proceeding with login...");
     }
   }
-
+  if(existingUser.isActive == false){
+       throw new ApiError("you are blocked , contact admin for access", 400);
+  }
   const userLoginToken = userToken(
     { id: existingUser.id, email: existingUser.email },
     process.env.JWT_ACCESS,

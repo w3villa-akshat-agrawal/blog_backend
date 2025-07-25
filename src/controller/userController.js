@@ -7,7 +7,7 @@ const userSignUp = async (req, res,next) => {
   try {
     const user = await services.signUp(req.body);
     if(user){
-      return (response(res,true,"signUpSuccess",{},201))
+      return (response(res,true,"signUpSuccess and otp is send please verify at next step",user,201))
     }
   } catch (error) {
   return next(error);
