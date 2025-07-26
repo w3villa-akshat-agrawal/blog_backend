@@ -9,6 +9,7 @@ const cors = require("cors");
 const userRoutes = require('./src/routes/userRoutes.js');
 const subscriptionRoutes = require('./src/routes/subscriptionRoutes.js')
 const paymentRoutes = require('./src/routes/paymentRoute.js')
+const otpRoutes = require('./src/routes/otpRoutes.js')
 const social = require('./src/routes/userSocial.js');
 const userBlog = require('./src/routes/blogRoutes.js');
 const adminRoutes = require('./src/routes/adminRoutes.js')
@@ -76,6 +77,7 @@ app.use("/app/v1/social", social);
 app.use("/api/v1/admin",adminRoutes)
 app.use("/api/v1/userPlan",subscriptionRoutes)
 app.use("/api/payment", paymentRoutes);
+app.use("/api/otp", otpRoutes);
 app.use(errorHandle);
 2
 // Start server only after DBs are connected

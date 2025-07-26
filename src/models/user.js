@@ -27,11 +27,20 @@ module.exports = (sequelize, DataTypes) => {
     allowNull: false,
     unique: true
   },
-  phone: DataTypes.STRING,
+ phone: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true
+  },
   password: {
     type: DataTypes.STRING,
     allowNull: true
   },
+  phoneVerified: {
+  type: DataTypes.BOOLEAN,
+  allowNull: false,
+  defaultValue: false,
+},
   isAdmin: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
