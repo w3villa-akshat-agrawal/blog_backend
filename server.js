@@ -13,6 +13,7 @@ const otpRoutes = require('./src/routes/otpRoutes.js')
 const social = require('./src/routes/userSocial.js');
 const userBlog = require('./src/routes/blogRoutes.js');
 const adminRoutes = require('./src/routes/adminRoutes.js')
+const uploadRoute = require("./src/routes/imageUpload.js");
 const userBlogComment = require('./src/routes/comment.js');
 const googleLogin = require('./src/routes/auth.js');
 const connectDB = require('./config/mongo_connection.js');
@@ -79,7 +80,8 @@ app.use("/api/v1/userPlan",subscriptionRoutes)
 app.use("/api/payment", paymentRoutes);
 app.use("/api/otp", otpRoutes);
 app.use(errorHandle);
-2
+
+app.use("/api/upload", uploadRoute);
 // Start server only after DBs are connected
 const PORT = process.env.PORT || 3010
 const startServer = async () => {

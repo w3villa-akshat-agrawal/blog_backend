@@ -5,15 +5,15 @@ module.exports = {
     await queryInterface.changeColumn('Users', 'phone', {
       type: Sequelize.STRING,
       unique: true,
-      allowNull: false,
+      allowNull: true,
     });
   },
 
   async down(queryInterface, Sequelize) {
     await queryInterface.changeColumn('Users', 'phone', {
       type: Sequelize.STRING,
-      unique: false,
-      allowNull: false,
+      unique: true,
+      allowNull: true,
     });
   }
 };

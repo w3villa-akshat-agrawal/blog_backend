@@ -37,13 +37,18 @@ router.get(
     }
 
     // ✅ Redirect user to frontend dashboard (or homepage)
-    return res.redirect("http://localhost:5173/dashboard"); // ✅ Change to your frontend route
+    return res.redirect("http://localhost:5173/dashboard"); 
   }
 );
 
 // 🔹 Step 3: Optional - Google auth failed
 router.get("/auth/google/failure", (req, res) => {
-  res.status(401).json({ success: false, message: "Google login failed" });
+  const errorMessage = "You are blocked. Contact admin at admin@test.com";
+setTimeout(()=>{
+    return res.redirect(
+    `http://localhost:5173/login?error=${encodeURIComponent(errorMessage)}`
+  );
+},500)
 });
 
 module.exports = router;

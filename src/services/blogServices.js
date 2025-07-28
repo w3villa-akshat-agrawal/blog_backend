@@ -175,12 +175,14 @@ const blogUpdate = async (userId,blogId,data)=>{
 
 const desiredUserFetch = async (id,loginUserID) => {
   let followingStatus
-  const userData = await redis.get(`userDetail:${id}`)
+  if(id == loginUserID){
+      const userData = await redis.get(`userDetail:${id}`)
       if(userData){
         const data = JSON.parse(userData)
         console.log("redis profile")
         return (data)
       }
+  }
   try {
     const [userDetail, followingAgg, followerAgg,isFollowing] = await Promise.all([
       // Sequelize: Fetch user detail + blogs + comments
