@@ -189,7 +189,7 @@ const desiredUserFetch = async (id,loginUserID) => {
       
       User.findOne({
         where: { id },
-        attributes: ['username', 'email', 'phone','isAdmin'],
+        attributes: ['username', 'email', 'phone','isAdmin','profileImage'],
         include: [
           {
             model: Blog,

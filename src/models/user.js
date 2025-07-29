@@ -36,6 +36,10 @@ module.exports = (sequelize, DataTypes) => {
     type: DataTypes.STRING,
     allowNull: true
   },
+  profileImage:{
+    type:DataTypes.STRING,
+    allowNull:true
+  },
   phoneVerified: {
   type: DataTypes.BOOLEAN,
   allowNull: false,
