@@ -30,7 +30,7 @@ router.get(
     if (userLoginToken && (newToken || regenerated)) {
       res.cookie("accessToken", userLoginToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: true,
         sameSite: "none",
         maxAge: 3 * 24 * 60 * 60 * 1000, // 3 days
       });
