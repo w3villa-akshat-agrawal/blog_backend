@@ -1,15 +1,19 @@
-// redisClient.js
-const Redis = require('ioredis');
+const { createClient } = require('redis');
 
-// Default host = 127.0.0.1 and port = 6379
-const redis = new Redis(); // or pass options: new Redis({ host: 'localhost', port: 6379 })
-
-redis.on('connect', () => {
-  console.log('✅ Redis connected successfully');
+const redis = createClient({
+  username: 'default',
+  password: 'gcqMMmPYJJrv3WEbc5fFCNJGnrXpz2Av',
+  socket: {
+    host: 'redis-11748.c281.us-east-1-2.ec2.redns.redis-cloud.com',
+    port: 11748,
+  },
 });
 
-redis.on('error', (err) => {
-  console.error('❌ Redis connection error:', err);
-});
+redis.on('error', (err) => console.error('Redis Client Error', err));
+
+// Immediately connect once
+redis.connect()
+  .then(() => console.log('✅ Redis connected'))
+  .catch((err) => console.error('❌ Redis connection error:', err));
 
 module.exports = redis;

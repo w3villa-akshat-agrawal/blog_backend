@@ -2,30 +2,26 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.changeColumn('Users', 'email', {
-      type: Sequelize.STRING,
-      allowNull: false,
-      unique: true,
+    // Add unique constraint to 'email'
+    await queryInterface.addConstraint('Users', {
+      fields: ['email'],
+      type: 'unique',
+      name: 'unique_email_constraint'
     });
 
-    await queryInterface.changeColumn('Users', 'username', {
-      type: Sequelize.STRING,
-      allowNull: false,
-      unique: true,
+    // Add unique constraint to 'username'
+    await queryInterface.addConstraint('Users', {
+      fields: ['username'],
+      type: 'unique',
+      name: 'unique_username_constraint'
     });
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.changeColumn('Users', 'email', {
-      type: Sequelize.STRING,
-      allowNull: false,
-      unique: false,
-    });
+    // Remove unique constraint from 'email'
+    await queryInterface.removeConstraint('Users', 'unique_email_constraint');
 
-    await queryInterface.changeColumn('Users', 'username', {
-      type: Sequelize.STRING,
-      allowNull: false,
-      unique: false,
-    });
+    // Remove unique constraint from 'username'
+    await queryInterface.removeConstraint('Users', 'unique_username_constraint');
   },
 };

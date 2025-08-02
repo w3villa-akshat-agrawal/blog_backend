@@ -2,28 +2,33 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    
-
-    // Add 'subscriptionPlanId' column with foreign key
+    // Step 1: Add column without FK
     await queryInterface.addColumn('Users', 'subscriptionPlanId', {
       type: Sequelize.INTEGER,
       allowNull: false,
       defaultValue: 1,
-      references: {
-        model: 'SubscriptionPlans',
-        key: 'id',
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'SET DEFAULT', // optional, change as needed
     });
 
-    // Add 'planActivatedAt' column
+    // Step 2: Add FK constraint
+    await queryInterface.addConstraint('Users', {
+      fields: ['subscriptionPlanId'],
+      type: 'foreign key',
+      name: 'fk_users_subscription_plan_id',
+      references: {
+        table: 'SubscriptionPlans',
+        field: 'id'
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'SET DEFAULT'
+    });
+
+    // Step 3: Add planActivatedAt
     await queryInterface.addColumn('Users', 'planActivatedAt', {
       type: Sequelize.DATE,
       allowNull: true,
     });
 
-    // Add 'planExpiresAt' column
+    // Step 4: Add planExpiresAt
     await queryInterface.addColumn('Users', 'planExpiresAt', {
       type: Sequelize.DATE,
       allowNull: true,
@@ -31,7 +36,10 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    // Remove added columns in reverse order
+    // Drop constraint first
+    await queryInterface.removeConstraint('Users', 'fk_users_subscription_plan_id');
+
+    // Then drop columns
     await queryInterface.removeColumn('Users', 'planExpiresAt');
     await queryInterface.removeColumn('Users', 'planActivatedAt');
     await queryInterface.removeColumn('Users', 'subscriptionPlanId');
