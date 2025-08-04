@@ -6,7 +6,9 @@ const sendSms = async (data) => {
     console.log("🔗 Sending OTP to:", smsUrl);
     console.log("📤 With data:", data);
 
-    const response = await axios.post(smsUrl, data);
+     const response = await axios.post(smsUrl, data, {
+      headers: { "Content-Type": "application/json" }
+    });
     console.log("✅ OTP service responded:", response.data);
 
     return response.data;
