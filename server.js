@@ -51,8 +51,8 @@ io.on('connection', (socket) => {
 // cors
 app.use(
   cors({
-    origin: "http://localhost:5173", // your frontend Vite port
-    credentials: true, // needed if you're using cookies or sessions
+    origin: "https://blog-app-frontend-six-iota.vercel.app", // <-- your deployed frontend
+    credentials: true, // allow cookies
   })
 );
 // Middleware
