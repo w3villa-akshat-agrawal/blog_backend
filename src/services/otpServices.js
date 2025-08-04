@@ -3,6 +3,7 @@
 const redis = require("../../config/redis_connection")
 const ApiError = require("../../utils/globalError")
 const {User} = require("../models")
+const axios = require("axios");
 
 const  updateUser = async (phoneno)=>{
     await User.update(
@@ -34,5 +35,19 @@ const otpService = async(data)=>{
         throw error
     }
 }
+
+// const otpService = async (data) => {
+//   try {
+//     // Call your deployed OTP service
+//     const response = await axios.post("https://blog-optservice.onrender.com/verify", data);
+//     if (response.data.success) {
+//       return { success: true, message: "OTP verified successfully" };
+//     } else {
+//       throw new ApiError(response.data.message || "OTP verification failed", 400);
+//     }
+//   } catch (error) {
+//     throw new ApiError(error.response?.data?.message || error.message, 400);
+//   }
+// };
 
 module.exports = otpService

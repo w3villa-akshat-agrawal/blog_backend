@@ -30,6 +30,7 @@ const signUp = async (data) => {
     if (password) {
       hash = await hashedPassword(password);
     }
+    console.log(process.env.SMSURL)
   const result = await sendSms({ phone: `+91${phone}` });
     const user = await User.create({
       username,
