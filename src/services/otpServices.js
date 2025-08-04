@@ -15,6 +15,7 @@ const  updateUser = async (phoneno)=>{
 const otpService = async(data)=>{
     try {
         const{phone,otp} = data
+        console.log(data)
         const redisOtp = await redis.get(`otp:+91${phone}`) || 123456
         console.log(phone)
         if (!redisOtp) {

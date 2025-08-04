@@ -4,7 +4,7 @@ const sendSms = async (data) => {
   try {
     const smsUrl = "https://blog-optservice.onrender.com/api/otp/send"; // 👈 directly used
     console.log("🔗 Sending OTP to:", smsUrl);
-    console.log("📤 With data:", data);
+    console.log("📤 With data:", data);https://blog-optservice.onrender.com/api/otp
 
      const response = await axios.post(smsUrl, data, {
       headers: { "Content-Type": "application/json" }
