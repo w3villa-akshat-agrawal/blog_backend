@@ -62,16 +62,22 @@ const anyUserDetail = async(req,res,next)=>{
    }
 }
 
-const blogParticular = async (req,res,next)=>{
-    const UserId = req.user.id
-    const BlogId = req.params.id
-    try {
-        const result = await particularBlogServices(BlogId,UserId)
-        if(res){
-            return response(res,true,"blog sent",result,200)
-        }
-    } catch (error) {
-        next(error)
+const blogParticular = async (req, res, next) => {
+  const userId = req.user.id;
+  const blogId = req.params.id;
+
+  console.time('⏱ Controller: Total Time');
+
+  try {
+    const result = await particularBlogServices(blogId, userId);
+    if (res) {
+      console.timeEnd('⏱ Controller: Total Time');
+      return response(res, true, "Blog sent", result, 200);
     }
-}
+  } catch (error) {
+    console.timeEnd('⏱ Controller: Total Time');
+    next(error);
+  }
+};
+
 module.exports = {createBlog,allBlog,deleteBlog,updateBlog,anyUserDetail,blogParticular}

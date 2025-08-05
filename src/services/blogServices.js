@@ -79,10 +79,13 @@ const getAllBlogService = async (id) => {
   }
 };
 
-const particularBlogServices = async (id,userId) => {
+const particularBlogServices = async (id, userId) => {
   try {
+    console.time('⏱ Service: Total Execution');
+    console.time('⏱ Service: Sequelize Query');
+
     const userBlog = await Blog.findAll({
-      where: { id: id },
+      where: { id },
       attributes: ['id', 'title', 'body'],
       include: [
         {
@@ -107,16 +110,24 @@ const particularBlogServices = async (id,userId) => {
       ]
     });
 
+    console.timeEnd('⏱ Service: Sequelize Query');
+
     if (!userBlog || userBlog.length === 0) {
+      console.timeEnd('⏱ Service: Total Execution');
       throw new ApiError("Blog not found", 400);
     }
 
-    return {userId:userId,data:userBlog};
+    const result = { userId: userId, data: userBlog };
+
+    console.timeEnd('⏱ Service: Total Execution');
+    return result;
   } catch (error) {
-    console.log(error);
+    console.timeEnd('⏱ Service: Total Execution');
+    console.error(error);
     throw new ApiError("Server error");
   }
 };
+
 
 
 
