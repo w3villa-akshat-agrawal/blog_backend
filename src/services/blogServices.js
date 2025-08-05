@@ -94,7 +94,7 @@ const particularBlogServices = async (id,userId) => {
           model: Comment,
           as: 'comments',
           attributes: ['comment'],
-          separate: true,
+          // separate: true,
           order: [['createdAt', 'DESC']],
           include: [
             {
