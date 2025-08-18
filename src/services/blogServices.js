@@ -287,6 +287,7 @@ console.log(followingAgg)
     return {
       loginUserID,
       userDetail,
+      id,
       followingCount,
       followerCount,
       followingStatus
