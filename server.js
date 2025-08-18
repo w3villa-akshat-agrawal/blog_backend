@@ -51,7 +51,7 @@ io.on('connection', (socket) => {
 // cors
 app.use(
   cors({
-    origin: "https://blog-app-frontend-six-iota.vercel.app", // <-- your deployed frontend
+    origin: ["https://blog-app-frontend-six-iota.vercel.app","http://localhost:5173"], // <-- your deployed frontend
     credentials: true, // allow cookies
   })
 );
