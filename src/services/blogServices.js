@@ -275,6 +275,7 @@ console.log(followingAgg)
     const data ={
       loginUserID,
       userDetail,
+      id,
       followingCount,
       followerCount,
       followingStatus
