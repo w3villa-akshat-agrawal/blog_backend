@@ -37,7 +37,7 @@ router.get(
     }
 
     // ✅ Redirect user to frontend dashboard (or homepage)
-    return res.redirect("http://localhost:5173/dashboard"); 
+    return res.redirect("https://blog-app-frontend-six-iota.vercel.app/dashboard"); 
   }
 );
 
