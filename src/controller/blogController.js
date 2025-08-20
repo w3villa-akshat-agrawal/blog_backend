@@ -38,8 +38,11 @@ const deleteBlog = async(req,res,next)=>{
 
 
 const blogTypeController = async (req,res,next)=>{
-    const userId = req.user.id || 90007
-    const blogId = req.body
+    const userId = req.user.id 
+    const blogId = req.body 
+    console.log(blogId)
+    console.log(check)
+    console.log(userId)
     const result = await privateBlogUpdate(blogId,userId)
      if(result){
         return res.send(response(res,true,"blog type changed to private",{},200))
