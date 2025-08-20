@@ -128,7 +128,26 @@ const particularBlogServices = async (id, userId) => {
   }
 };
 
+const privateBlogUpdate  = async (blogId,userId) =>{
+  const blog = await Blog.findOne({ where: { id: blogId } });
+    try {
+      if (!blog) {
+      throw new ApiError("Blog not found", 404);
+    }
 
+    // Check if the user is the owner
+    if (userId !== blog.userId) {
+      throw new ApiError("Unauthorized: You don't have access to delete this blog", 403);
+    }
+    const update = await blog.update({type:private},{where: { id: blogId } })
+    if(update){
+      return "blog updated"
+    }
+    } catch (error) {
+      throw error
+    }
+
+}
 
 
 
@@ -301,4 +320,4 @@ console.log(followingAgg)
 
 
 
-module.exports = { blogCreateService, getAllBlogService,blogDelete,blogUpdate,desiredUserFetch,particularBlogServices };
+module.exports = { blogCreateService, getAllBlogService,blogDelete,blogUpdate,desiredUserFetch,particularBlogServices,privateBlogUpdate };

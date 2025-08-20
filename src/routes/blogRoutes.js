@@ -1,7 +1,7 @@
 const express = require("express");
 const verifyAccessToken = require("../middleware/tokenVerification");
 const router = express.Router();
-const {createBlog,allBlog,deleteBlog, updateBlog,anyUserDetail, blogParticular} = require('../controller/blogController.js');
+const {createBlog,allBlog,deleteBlog, updateBlog,anyUserDetail, blogParticular, blogTypeController} = require('../controller/blogController.js');
 const checkPlan = require("../middleware/planMiddleware.js");
 
 
@@ -13,7 +13,7 @@ router.post("/createBlog",verifyAccessToken,checkPlan,createBlog)
 router.delete("/delete/blog/:id",verifyAccessToken,deleteBlog)
 router.patch("/updateBlog/:id",verifyAccessToken,updateBlog)
 router.get("/particularBlog/:id",verifyAccessToken,blogParticular)
-
+router.post("/private",verifyAccessToken,blogTypeController)
 
 // Get all comments of all particular blog-->
 router.get("/userBlog",verifyAccessToken,anyUserDetail)
