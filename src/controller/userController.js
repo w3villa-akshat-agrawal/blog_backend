@@ -5,7 +5,7 @@ const statusCodes = require("../../utils/statusCode");
 const services = require("../services");
 const userSignUp = async (req, res,next) => {
   try {
-    console.log(req.body)
+    
     const user = await services.signUp(req.body);
 
     if(user){
@@ -18,7 +18,7 @@ const userSignUp = async (req, res,next) => {
 const userLogin = async (req, res, next) => {
   try {
     const tokenFromCookie = req.cookies?.accessToken;
-
+    console.log(req.body)
     const { userLoginToken, user } = await services.login(req.body, tokenFromCookie);
 
     res.cookie('accessToken', userLoginToken, {
