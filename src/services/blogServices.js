@@ -139,7 +139,7 @@ const privateBlogUpdate  = async (blogId,userId) =>{
     if (userId !== blog.userId) {
       throw new ApiError("Unauthorized: You don't have access to delete this blog", 403);
     }
-    const update = await blog.update({type:private},{where: { id: blogId } })
+    const update = await blog.update({type:'private'},{where: { id: blogId } })
     if(update){
       return "blog updated"
     }
