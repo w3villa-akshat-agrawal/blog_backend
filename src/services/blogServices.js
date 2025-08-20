@@ -141,6 +141,7 @@ const privateBlogUpdate  = async (blogId,userId) =>{
     }
     const update = await blog.update({type:'private'},{where: { id: blogId } })
     if(update){
+      await redis.del(`userDetail:${userId}`)
       return "blog updated"
     }
     } catch (error) {
@@ -161,6 +162,7 @@ const publicBlogUpdate  = async (blogId,userId) =>{
     }
     const update = await blog.update({type:'public'},{where: { id: blogId } })
     if(update){
+      await redis.del(`userDetail:${userId}`)
       return "blog updated"
     }
     } catch (error) {
