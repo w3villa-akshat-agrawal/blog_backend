@@ -148,7 +148,26 @@ const privateBlogUpdate  = async (blogId,userId) =>{
     }
 
 }
+const publicBlogUpdate  = async (blogId,userId) =>{
+  const blog = await Blog.findOne({ where: { id: blogId } });
+    try {
+      if (!blog) {
+      throw new ApiError("Blog not found", 404);
+    }
 
+    // Check if the user is the owner
+    if (userId !== blog.userId) {
+      throw new ApiError("Unauthorized: You don't have access to delete this blog", 403);
+    }
+    const update = await blog.update({type:'public'},{where: { id: blogId } })
+    if(update){
+      return "blog updated"
+    }
+    } catch (error) {
+      throw error
+    }
+
+}
 
 
 const blogDelete = async (userId, blogId) => {
@@ -224,7 +243,7 @@ const desiredUserFetch = async (id,loginUserID) => {
           {
             model: Blog,
             as: 'blogs',
-            attributes: ['title', 'body', 'id'],
+            attributes: ['title', 'body', 'id','type'],
             include: [
               {
                 model: Comment,
@@ -320,4 +339,4 @@ console.log(followingAgg)
 
 
 
-module.exports = { blogCreateService, getAllBlogService,blogDelete,blogUpdate,desiredUserFetch,particularBlogServices,privateBlogUpdate };
+module.exports = { blogCreateService, getAllBlogService,blogDelete,blogUpdate,desiredUserFetch,particularBlogServices,privateBlogUpdate,publicBlogUpdate };

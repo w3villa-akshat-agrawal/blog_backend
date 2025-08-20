@@ -1,5 +1,5 @@
 const response = require("../../utils/response")
-const {blogCreateService,getAllBlogService,blogDelete, blogUpdate,desiredUserFetch, particularBlogServices, privateBlogUpdate} = require ("../services/blogServices.js")
+const {blogCreateService,getAllBlogService,blogDelete, blogUpdate,desiredUserFetch, particularBlogServices, privateBlogUpdate, publicBlogUpdate} = require ("../services/blogServices.js")
 const createBlog = async (req,res,next) => {
     try {
          const userId =req.user.id
@@ -48,6 +48,16 @@ const blogTypeController = async (req,res,next)=>{
         return res.send(response(res,true,"blog type changed to private",{},200))
     }
 }
+const blogTypePublicController = async (req,res,next)=>{
+    const userId = req.user.id 
+    const {blogId} = req.body 
+    console.log(blogId)
+    console.log(userId)
+    const result = await publicBlogUpdate(blogId,userId)
+     if(result){
+        return res.send(response(res,true,"blog type changed to public",{},200))
+    }   
+}
 const updateBlog = async (req,res,next) =>{
     const userId = req.user.id
     const blogId = req.params.id
@@ -93,4 +103,4 @@ const blogParticular = async (req, res, next) => {
   }
 };
 
-module.exports = {createBlog,allBlog,deleteBlog,updateBlog,anyUserDetail,blogParticular,blogTypeController}
+module.exports = {createBlog,allBlog,deleteBlog,updateBlog,anyUserDetail,blogParticular,blogTypeController,blogTypePublicController}
