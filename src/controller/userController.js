@@ -5,7 +5,9 @@ const statusCodes = require("../../utils/statusCode");
 const services = require("../services");
 const userSignUp = async (req, res,next) => {
   try {
+    console.log(req.body)
     const user = await services.signUp(req.body);
+
     if(user){
       return (response(res,true,"signUpSuccess and otp is send please verify at next step",user,201))
     }
