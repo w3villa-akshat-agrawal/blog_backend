@@ -233,8 +233,10 @@ const desiredUserFetch = async (id,loginUserID) => {
         console.log("redis profile")
         return (data)
       }
+      
   }
   try {
+    const blogType = id == loginUserID ? {}:{type:'public'}
     const [userDetail, followingAgg, followerAgg,isFollowing] = await Promise.all([
       // Sequelize: Fetch user detail + blogs + comments
       
@@ -245,6 +247,7 @@ const desiredUserFetch = async (id,loginUserID) => {
           {
             model: Blog,
             as: 'blogs',
+            where:blogType,
             attributes: ['title', 'body', 'id','type'],
             include: [
               {
