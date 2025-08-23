@@ -165,8 +165,8 @@ const editProfileService = async (data, userId) => {
       throw new ApiError("Update failed", 400);
     }
 
-    return { message: "Profile updated successfully" };
     await redis.del(`userDetail:${userId}`)
+    return { message: "Profile updated successfully" };
   } catch (error) {
     throw error;
   }
