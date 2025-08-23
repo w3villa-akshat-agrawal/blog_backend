@@ -7,7 +7,7 @@ const { userToken, tokenCheck } = require("../../utils/tokenHouse.js");
 const sendEmail = require("../../utils/mail.js");
 const jwt = require('jsonwebtoken');
 const sendSms = require("../../utils/smsService.js");
-
+const redis = require("../../config/redis_connection");
 
 const signUp = async (data) => {
   const { error, value } = check.signUpSchema.validate(data);
@@ -119,6 +119,7 @@ const login = async (data, token) => {
     throw (new ApiError(error.message))
   }
 };
+
 
 module.exports = { login };
 
