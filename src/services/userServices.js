@@ -166,7 +166,7 @@ const editProfileService = async (data, userId) => {
     }
 
     return { message: "Profile updated successfully" };
-
+    await redis.del(`userDetail:${userId}`)
   } catch (error) {
     throw error;
   }
