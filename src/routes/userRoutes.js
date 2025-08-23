@@ -1,5 +1,5 @@
 const express = require('express');
-const { userSignUp, userLogin,verifymail,refreshToken,logout } = require('../controller/userController');
+const { userSignUp, userLogin,verifymail,refreshToken,logout, editProfileController } = require('../controller/userController');
 const verifyAccessToken = require('../middleware/tokenVerification');
 const router = express.Router()
 
@@ -13,6 +13,7 @@ router.get("/testing1",verifyAccessToken,(req,res)=>{
     res.send("working properly")
 })
 router.get("/auth/logout",verifyAccessToken,logout)
+router.patch("/editProfile",verifyAccessToken,editProfileController)
 // router.get("/userTokenRefresh",refreshToken)
 module.exports = router
 

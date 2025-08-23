@@ -145,6 +145,33 @@ const mailTokenVerification = async (token) => {
   }
 };
 
+const editProfileService = async (data, userId) => {
+  try {
+    // check if user exists
+    const user = await User.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new ApiError("User not found", 404);
+    }
+
+    const { email, username, phone } = data;
+
+    const [updatedCount] = await User.update(
+      { email, username, phone },
+      { where: { id: userId } }
+    );
+
+    if (updatedCount === 0) {
+      throw new ApiError("Update failed", 400);
+    }
+
+    return { message: "Profile updated successfully" };
+
+  } catch (error) {
+    throw error;
+  }
+};
+
 // const accessTokenRefresh = async (tokenRefreSH) => {
 //   try {
 //     const refreshToken = tokenRefreSH;
@@ -193,4 +220,4 @@ const mailTokenVerification = async (token) => {
 //   }
 // };
 
-module.exports = { signUp, login, mailTokenVerification };
+module.exports = { signUp, login, mailTokenVerification,editProfileService };

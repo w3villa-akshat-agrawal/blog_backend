@@ -86,4 +86,21 @@ const logout = async(req,res,next)=>{
     }
 
 }
-module.exports ={userSignUp,userLogin,verifymail,logout}
+
+const editProfileController = async (req, res, next) => {
+  const userId = req.user.id; // ✅ use const
+
+  try {
+    const result = await services.editProfileService(req.body, userId);
+
+    if (!result) {
+      return response(res, false, "Profile not updated", {}, 400);
+    }
+
+    return response(res, true, "Profile edit success", {}, 200);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};
+module.exports ={userSignUp,userLogin,verifymail,logout,editProfileController}
