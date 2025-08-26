@@ -14,7 +14,16 @@ router.get("/testing1",verifyAccessToken,(req,res)=>{
 })
 router.get("/auth/logout",verifyAccessToken,logout)
 router.patch("/editProfile",verifyAccessToken,editProfileController)
-// router.get("/userTokenRefresh",refreshToken)
+router.get("/sessionGuard", verifyAccessToken, (req, res) => {
+  const userId = req.user?.id; // safely access user
+
+  if (userId) {
+    return res.status(200).json({ message: "already logged in", userId });
+  }
+
+  return res.status(401).json({ message: "not logged in" });
+});
+
 module.exports = router
 
 
