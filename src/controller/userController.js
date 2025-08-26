@@ -25,7 +25,7 @@ const userLogin = async (req, res, next) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'none',
-      maxAge: 3 * 24 * 60 * 60 * 1000 // 3 days
+      maxAge: 1 * 24 * 60 * 60 * 1000 // 3 days
     });
 
     return (response(res,true,"login Successful",{},200));
@@ -48,44 +48,33 @@ const verifymail = async(req,res,next)=>{
     return (next(error))
   }
 }
-// const refreshToken = async (req, res, next) => {
-//   try {
-//     const { refreshToken } = req.cookies;
-//     console.log("refreshToken from cookie:", refreshToken);
 
-//     const newAccessToken = await services.accessTokenRefresh(refreshToken);
-
-//     // ✅ Set accessToken cookie here
-//     res.cookie('accessToken', newAccessToken, {
-//       httpOnly: true,
-//       secure: false,
-//       sameSite: 'lax',
-//       maxAge: 15 * 60 * 1000, // 15 minutes
-//     });
-
-//     return res.send(response("Access token regenerated",{newAccessToken}, statusCodes.OK));
-//   } catch (error) {
-//     return next(error);
-//   }
-// };
-
-const logout = async(req,res,next)=>{
-  userId = req.user.id
+const logout = async (req, res, next) => {
   try {
-    // Remove the access token cookie
-    res.clearCookie("accessToken", {
+    const userId = req.user?.id;
+
+    res.cookie("accessToken", "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      expires: new Date(0)
     });
-    await redis.del("allBlog");
-    await redis.del(`userDetail:${userId}`)
-    return res.send(response(res,true,"logout sucess",{},200))}
-    catch(error){
-      next(error)
+
+ 
+    if (userId) {
+      await redis.del("allBlog");
+      await redis.del(`userDetail:${userId}`);
     }
 
-}
+    return res.status(200).json({
+      success: true,
+      message: "Logout successful",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 const editProfileController = async (req, res, next) => {
   const userId = req.user.id; // ✅ use const
