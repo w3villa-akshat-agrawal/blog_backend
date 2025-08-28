@@ -17,6 +17,10 @@ module.exports = (sequelize, DataTypes) => {
     body: DataTypes.TEXT,
     type: DataTypes.ENUM('public', 'private'),
     userId: DataTypes.INTEGER,
+    image: {
+  type: DataTypes.STRING,
+  allowNull: true
+}
   }, {
     sequelize,
     modelName: 'Blog',

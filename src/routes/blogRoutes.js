@@ -3,6 +3,7 @@ const verifyAccessToken = require("../middleware/tokenVerification");
 const router = express.Router();
 const {createBlog,allBlog,deleteBlog, updateBlog,anyUserDetail, blogParticular, blogTypeController, blogTypePublicController} = require('../controller/blogController.js');
 const checkPlan = require("../middleware/planMiddleware.js");
+const { blogImageUploader,upload } = require("../controller/blogImage.js");
 
 
 
@@ -17,5 +18,5 @@ router.post("/private",verifyAccessToken,blogTypeController)
 router.post("/public",verifyAccessToken,blogTypePublicController)
 // Get all comments of all particular blog-->
 router.get("/userBlog",verifyAccessToken,anyUserDetail)
-
+router.post("/blogImage",verifyAccessToken,upload.single("image"),blogImageUploader)
 module.exports = router;
