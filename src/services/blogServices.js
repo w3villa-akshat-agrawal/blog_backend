@@ -12,7 +12,7 @@ const clearUserAndPlanCache = require("../../utils/redisKeysDel");
 
 
 const blogCreateService = async (userId, data) => {
-  const { title, body, type='public' } = data;
+  const { title, body, type='public', imageUrl } = data;
 
   const existingBlog = await checkExistence(Blog, { title });
   if (existingBlog) {
@@ -25,6 +25,7 @@ const blogCreateService = async (userId, data) => {
       body,
       type ,
       userId,
+      image:imageUrl
     });
 
     

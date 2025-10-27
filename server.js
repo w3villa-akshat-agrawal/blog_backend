@@ -20,6 +20,7 @@ const connectDB = require('./config/mongo_connection.js');
 const errorHandle = require('./src/middleware/errorHandling.js');
 const db = require('./src/models');
 const chatHandler = require('./src/socket/chat.js');
+const blogupload = require('./src/routes/blogImageUpload.js');
 // cron job
 require("./src/cornJobs/downgradeUsers.js")
 // Load environment variables
@@ -79,6 +80,7 @@ app.use("/api/v1/admin",adminRoutes)
 app.use("/api/v1/userPlan",subscriptionRoutes)
 app.use("/api/payment", paymentRoutes);
 app.use("/api/otp", otpRoutes);
+app.use("/api/v1/upload",blogupload)
 app.use(errorHandle);
 
 app.use("/api/upload", uploadRoute);
