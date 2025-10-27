@@ -52,7 +52,7 @@ const getAllBlogService = async (id) => {
 
     const allBlog = await Blog.findAll({
       where:{type:"public"},
-      attributes: ['id', 'title', 'body'],
+      attributes: ['id', 'title', 'body','image'],
       order:[["createdAt","DESC"]],
       include: [
         {
